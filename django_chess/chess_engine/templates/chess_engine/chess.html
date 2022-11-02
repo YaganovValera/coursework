@@ -1,0 +1,22 @@
+{% extends 'chess_engine/base.html' %}
+{% load static%}
+
+{% block title%}
+<title> Шахматы </title>
+<link rel="stylesheet" href="{% static 'chess_engine/css/chess.css'%}">
+{% endblock %}
+
+{% block content %}
+
+  <sectio class="nav">
+        <h1>ШАХМАТЫ</h1>
+        <div class="nav-container nav-container--scrolled">
+            <span class="nav-tab"></span>
+            <span class="nav-tab"></span>
+            <span class="nav-tab"></span>
+            <span class="nav-tab">{{user.username}}</span>
+            <a class="nav-tab" href="{% url 'logout' %}">Выход</a>
+        </div>
+  </sectio>
+
+{% endblock %}

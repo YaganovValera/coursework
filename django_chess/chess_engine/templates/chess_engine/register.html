@@ -1,0 +1,25 @@
+{% extends 'chess_engine/base.html' %}
+{% load static%}
+
+{% block title%}
+<link rel="stylesheet" href="{% static 'chess_engine/css/login.css'%}">
+<title>{{title}}</title>
+{% endblock %}
+
+{% block content %}
+<div id="login">
+    <fieldset class="clearfix">
+        <p class="title">Регистрация</p>
+        <form method="post">
+            {% csrf_token %}
+            {% for f in form %}
+            <p><label class="form-label">{{f.label}}: </label>{{ f }}</p>
+            <div class="form-error">{{ f.errors }}</div>
+            {% endfor %}
+            <p><input type="submit" value="Создать"></p>
+        </form>
+        <p class="register">Вспомнил аккаунта?<a href="{% url 'login'%}">Войти</a>
+            <span class="fontawesome-arrow-right"></span></p>
+    </fieldset>
+</div>
+{% endblock %}
