@@ -1,6 +1,5 @@
 #!/urs/bin/python3
 #-*- coding: utf-8 -*-
-import os
 import time
 
 from PyQt5 import QtWidgets, Qt, QtGui, QtCore
@@ -111,8 +110,10 @@ class Personal_account(QMainWindow):
         super(Personal_account, self).__init__()
         loadUi("qt_personal_ac.ui", self)
         self.start()
+
         self.exit_btn.clicked.connect(lambda: self.exit())
         self.btn_start_Game.clicked.connect(lambda: self.Game())
+
 
     def start(self):
         self.cur_board = startBoard()
@@ -122,40 +123,25 @@ class Personal_account(QMainWindow):
         try:
             for i in range(self.table_chess_board.rowCount()):
                 for j in range(self.table_chess_board.columnCount()):
-                    pushButton = Qt.QPushButton()
-                    if (i + j) % 2 != 0:
-                        pushButton.setStyleSheet("QPushButton {background-color: rgb(170, 102, 6);}"
-                                                 "QPushButton:hover{border: 2px solid blue;}")
-                    else:
-                        pushButton.setStyleSheet("QPushButton {background-color: rgb(255, 209, 99);}"
-                                                 "QPushButton:hover{border: 2px solid blue;}")
+                    item = QTableWidgetItem()
                     if self.cur_board.board[i][j] != "--":
-                        pushButton.setIconSize(QSize(60, 60))
-                        pushButton.setIcon(QIcon('img/'+self.cur_board.board[i][j]+'.png'))
-                    self.table_chess_board.setCellWidget(i, j, pushButton)
-        except:
-            self.start()
-            self.error_user_board()
+                        icon = QtGui.QIcon()
+                        icon.addPixmap(QtGui.QPixmap('img/'+self.cur_board.board[i][j]+'.png'), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+                        item.setIcon(icon)
+                    if (i + j) % 2 != 0:
+                        brush = QtGui.QBrush(QtGui.QColor(170, 102, 6))
+                    else:
+                        brush = QtGui.QBrush(QtGui.QColor(255, 209, 99))
+                    brush.setStyle(QtCore.Qt.SolidPattern)
+                    item.setBackground(brush)
+                    item.textAlignment()
+                    item.setFlags(QtCore.Qt.ItemIsEnabled)
+                    self.table_chess_board.setItem(i, j, item)
+        except Exception as e:
+            print(e)
+            # self.start()
+            # self.error_user_board()
 
-    # def draw_cur_board(self):
-    #     try:
-    #         for i in range(self.table_chess_board.rowCount()):
-    #             for j in range(self.table_chess_board.columnCount()):
-    #                 self.pushButton = Qt.QPushButton()
-    #                 if (i + j) % 2 != 0:
-    #                     self.pushButton.setStyleSheet("QPushButton {background-color: rgb(170, 102, 6);}"
-    #                                              "QPushButton:hover{border: 2px solid blue;}")
-    #                 else:
-    #                     self.pushButton.setStyleSheet("QPushButton {background-color: rgb(255, 209, 99);}"
-    #                                              "QPushButton:hover{border: 2px solid blue;}")
-    #                 if self.cur_board.board[i][j] != "--":
-    #                     self.pushButton.setIconSize(QSize(60, 60))
-    #                     self.pushButton.setIcon(QIcon('img/'+self.cur_board.board[i][j]+'.png'))
-    #                 self.table_chess_board.setCellWidget(i, j, self.pushButton)
-    #
-    #     except:
-    #         self.start()
-    #         self.error_user_board()
 
     def Game(self):
         try:
@@ -170,26 +156,43 @@ class Personal_account(QMainWindow):
                     black_player = self.player_black_comboBox.currentText()
                     white_player = self.player_white_comboBox.currentText()
                     players = [black_player, white_player]
-                    # while checking_cur_board():
-                    if "Человек" in players:
+                    while checking_cur_board():
+                    # if "Человек" in players:
+                    # for i in range(5):
                         if players[int(flag_move_player)] == "Человек":
+                            # self.table_chess_board.cellClicked.connect(self.cellclicked)
+                            # print("gg")
+                            # flag_move_player = not flag_move_player
+                            # self.computer_move = get_computer_move()
+                            # self.cur_board.board[int(self.computer_move[2])][int(self.computer_move[3])] = \
+                            #     self.cur_board.board[int(self.computer_move[0])][int(self.computer_move[1])]
+                            #
+                            # self.cur_board.board[int(self.computer_move[0])][int(self.computer_move[1])] = "--"
+                            # flag_move_player = not flag_move_player
+                            # self.draw_cur_board()
                             self.computer_move = get_computer_move()
                             self.cur_board.board[int(self.computer_move[2])][int(self.computer_move[3])] = \
                                 self.cur_board.board[int(self.computer_move[0])][int(self.computer_move[1])]
+
                             self.cur_board.board[int(self.computer_move[0])][int(self.computer_move[1])] = "--"
                             flag_move_player = not flag_move_player
-                        if players[int(flag_move_player)] != "Человек":
+                            self.draw_cur_board()
+                        else:
                             self.computer_move = get_computer_move()
                             self.cur_board.board[int(self.computer_move[2])][int(self.computer_move[3])] =\
                                 self.cur_board.board[int(self.computer_move[0])][int(self.computer_move[1])]
+
                             self.cur_board.board[int(self.computer_move[0])][int(self.computer_move[1])] = "--"
                             flag_move_player = not flag_move_player
-                    self.draw_move()
-                    time.sleep(2)
+                            self.draw_cur_board()
+
                 else:
                     self.error_user_board()
         except Exception as e:
             print(e)
+
+    def cellclicked(self, row, col):
+        print(row, col)
 
     def check_board(self, board):
         if checking_cur_board(board):
@@ -211,34 +214,22 @@ class Personal_account(QMainWindow):
 
     def draw_move(self):
         for cell in range(0, len(self.computer_move), 2):
+            item = QtWidgets.QTableWidgetItem()
             x = int(self.computer_move[cell])
             y = int(self.computer_move[cell + 1])
-            pushButton = Qt.QPushButton()
-            if (x + y) % 2 != 0:
-                pushButton.setStyleSheet("QPushButton {background-color: rgb(170, 102, 6);}"
-                                         "QPushButton:hover{border: 2px solid blue;}")
-            else:
-                pushButton.setStyleSheet("QPushButton {background-color: rgb(255, 209, 99);}"
-                                         "QPushButton:hover{border: 2px solid blue;}")
             if self.cur_board.board[x][y] != "--":
-                pushButton.setIconSize(QSize(60, 60))
-                pushButton.setIcon(QIcon('img/' + self.cur_board.board[x][y] + '.png'))
-            self.table_chess_board.setCellWidget(x, y, pushButton)
-    # def draw_move(self):
-    #     for cell in range(0, len(self.computer_move), 2):
-    #         x = int(self.computer_move[cell])
-    #         y = int(self.computer_move[cell + 1])
-    #         pushButton = Qt.QPushButton()
-    #         if (x + y) % 2 != 0:
-    #             pushButton.setStyleSheet("QPushButton {background-color: rgb(170, 102, 6);}"
-    #                                      "QPushButton:hover{border: 2px solid blue;}")
-    #         else:
-    #             pushButton.setStyleSheet("QPushButton {background-color: rgb(255, 209, 99);}"
-    #                                      "QPushButton:hover{border: 2px solid blue;}")
-    #         if self.cur_board.board[x][y] != "--":
-    #             pushButton.setIconSize(QSize(60, 60))
-    #             pushButton.setIcon(QIcon('img/' + self.cur_board.board[x][y] + '.png'))
-    #         self.table_chess_board.setCellWidget(x, y, pushButton)
+                icon = QtGui.QIcon()
+                icon.addPixmap(QtGui.QPixmap('img/'+self.cur_board.board[x][y]+'.png'), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+                item.setIcon(icon)
+            if (x + y) % 2 != 0:
+                brush = QtGui.QBrush(QtGui.QColor(170, 102, 6))
+            else:
+                brush = QtGui.QBrush(QtGui.QColor(255, 209, 99))
+            brush.setStyle(QtCore.Qt.SolidPattern)
+            item.setBackground(brush)
+            item.setFlags(QtCore.Qt.ItemIsEnabled)
+            self.table_chess_board.setItem(x, y, item)
+            self.table_chess_board.show()
 
     def error_user_board(self):
         error = QMessageBox()
@@ -262,6 +253,7 @@ class Personal_account(QMainWindow):
 
     def click_btn(self, btn):
         if btn.text() == 'OK':
+            self.start()
             widget.removeWidget(account_window)
             widget.setFixedWidth(560)
             widget.setFixedHeight(350)
