@@ -1,9 +1,13 @@
+import chess
+import chess.engine
 from stockfish import Stockfish
 
 stockfish = Stockfish("stockfish_15_win_x64_avx2/stockfish_15_x64_avx2.exe")
 
+board = chess.Board()
 
-class startBoard():
+
+class startBoard:
     def __init__(self):
         self.board = [
             ["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
@@ -16,52 +20,52 @@ class startBoard():
             ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]
         ]
 
-
 def checking_cur_board(board=None):
     if board != None:
-        return stockfish.is_fen_valid(board)
+        if stockfish.is_fen_valid(board):
+            stockfish.set_fen_position(board)
+            return True
     cur_position = stockfish.get_fen_position()
     return stockfish.is_fen_valid(cur_position)
 
 
-def make_matrix_board(board):  # type(board) == chess.Board()
-    pgn = board
-    foo = []  # Final board
-    pieces = pgn.split(" ", 1)[0]
+def make_matrix_board(board):
+    end_board = []
+    pieces = board.split(" ", 1)[0]
     rows = pieces.split("/")
     for row in rows:
-        foo2 = []  # This is the row I make
+        cur_board = []
         for thing in row:
             if thing.isdigit():
                 for i in range(0, int(thing)):
-                    foo2.append('--')
+                    cur_board.append('--')
             else:
                 if thing == 'r':
-                    foo2.append('bR')
+                    cur_board.append('bR')
                 if thing == 'n':
-                    foo2.append('bN')
+                    cur_board.append('bN')
                 if thing == 'b':
-                    foo2.append('bB')
+                    cur_board.append('bB')
                 if thing == 'q':
-                    foo2.append('bQ')
+                    cur_board.append('bQ')
                 if thing == 'k':
-                    foo2.append('bK')
+                    cur_board.append('bK')
                 if thing == 'p':
-                    foo2.append('bP')
+                    cur_board.append('bP')
                 if thing == 'P':
-                    foo2.append('wP')
+                    cur_board.append('wP')
                 if thing == 'R':
-                    foo2.append('wR')
+                    cur_board.append('wR')
                 if thing == 'N':
-                    foo2.append('wN')
+                    cur_board.append('wN')
                 if thing == 'B':
-                    foo2.append('wB')
+                    cur_board.append('wB')
                 if thing == 'Q':
-                    foo2.append('wQ')
+                    cur_board.append('wQ')
                 if thing == 'K':
-                    foo2.append('wK')
-        foo.append(foo2)
-    return foo
+                    cur_board.append('wK')
+        end_board.append(cur_board)
+    return end_board
 
 
 def transition_board(fen_move):
@@ -93,3 +97,7 @@ def get_computer_move():
     stockfish.make_moves_from_current_position([best_move])
     best_move = transition_board(best_move)
     return best_move
+
+
+
+
