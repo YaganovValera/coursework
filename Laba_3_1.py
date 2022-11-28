@@ -12,13 +12,13 @@ import sys
 from Game import *
 from HillCipher import *
 
-KEY_login = "encode123"
+KEY_login = "stockfish"
 
 STATUS_game = False
 Players = []
 flag_move_player = True
 USER_board = []
-
+flag_draw_board = True
 
 # Класс отвечающий за стартовое окно
 class Login(QMainWindow):
@@ -119,30 +119,25 @@ class Chess_Board(QThread):
         self.status_game = False
 
     def run(self):
-        global STATUS_game, USER_board, flag_move_player, Players
+        global STATUS_game, USER_board, flag_move_player, Players, flag_draw_board
         try:
-            if STATUS_game:
-                self.status_game = True
-                self.user_board = USER_board
             while STATUS_game:
-                if Players[int(flag_move_player)] == "Человек":
-                    self.computer_move = get_computer_move()
-                    self.user_board[int(self.computer_move[2])][int(self.computer_move[3])] = \
-                        self.user_board[int(self.computer_move[0])][int(self.computer_move[1])]
-
-                    self.user_board[int(self.computer_move[0])][int(self.computer_move[1])] = "--"
-                    flag_move_player = not flag_move_player
+                if flag_draw_board:
+                    if Players[int(flag_move_player)] == "Человек":
+                        self.computer_move = get_computer_move()
+                        USER_board = get_cur_position()
+                        flag_move_player = not flag_move_player
+                    else:
+                        self.computer_move = get_computer_move()
+                        USER_board = USER_board = get_cur_position()
+                        flag_move_player = not flag_move_player
+                    STATUS_game = checking_cur_board()
                 else:
-                    self.computer_move = get_computer_move()
-                    self.user_board[int(self.computer_move[2])][int(self.computer_move[3])] = \
-                        self.user_board[int(self.computer_move[0])][int(self.computer_move[1])]
-                    self.user_board[int(self.computer_move[0])][int(self.computer_move[1])] = "--"
-                    flag_move_player = not flag_move_player
-                STATUS_game = checking_cur_board()
+                    flag_draw_board = True
+                print(USER_board)
                 time.sleep(2)
         except Exception as e:
             print(e)
-        # time.sleep(5)
 
 
 # Класс отвечающий за личный кабинет
@@ -181,7 +176,6 @@ class Personal_account(QMainWindow):
                         brush = QtGui.QBrush(QtGui.QColor(255, 209, 99))
                     brush.setStyle(QtCore.Qt.SolidPattern)
                     item.setBackground(brush)
-                    item.textAlignment()
                     item.setFlags(QtCore.Qt.ItemIsEnabled)
                     self.table_chess_board.setItem(i, j, item)
         except Exception as e:
@@ -206,7 +200,7 @@ class Personal_account(QMainWindow):
         return True
 
     def settings_Game(self):
-        global STATUS_game, USER_board, Players, flag_move_player
+        global STATUS_game, USER_board, Players, flag_move_player, flag_draw_board
         STATUS_game = False
         USER_board = []
         Players = []
@@ -227,21 +221,22 @@ class Personal_account(QMainWindow):
                 USER_board = self.cur_board.board
                 Players = self.players
                 flag_move_player = self.flag_move_player
+                flag_draw_board = False
             else:
                 self.start_board()
                 self.error_user_board()
 
     def draw_move(self):
-        global STATUS_game, USER_board, Players, flag_move_player
+        global STATUS_game, USER_board, Players, flag_move_player, flag_draw_board
         try:
-            if STATUS_game:
+            if STATUS_game and flag_draw_board:
                 for cell in range(0, len(self.game.computer_move), 2):
                     item = QtWidgets.QTableWidgetItem()
                     x = int(self.game.computer_move[cell])
                     y = int(self.game.computer_move[cell + 1])
-                    if self.game.user_board[x][y] != "--":
+                    if USER_board[x][y] != "--":
                         icon = QtGui.QIcon()
-                        icon.addPixmap(QtGui.QPixmap('img/'+self.game.user_board[x][y]+'.png'), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+                        icon.addPixmap(QtGui.QPixmap('img/'+USER_board[x][y]+'.png'), QtGui.QIcon.Normal, QtGui.QIcon.Off)
                         item.setIcon(icon)
                     if (x + y) % 2 != 0:
                         brush = QtGui.QBrush(QtGui.QColor(170, 102, 6))

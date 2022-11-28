@@ -99,5 +99,9 @@ def get_computer_move():
     return best_move
 
 
+def get_cur_position():
+    cur_position = stockfish.get_fen_position()
+    cur_position = make_matrix_board(cur_position)
+    return cur_position
 
 
