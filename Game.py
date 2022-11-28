@@ -20,11 +20,14 @@ class startBoard:
             ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]
         ]
 
+
 def checking_cur_board(board=None):
-    if board != None:
+    if board!=None:
         if stockfish.is_fen_valid(board):
             stockfish.set_fen_position(board)
             return True
+        else:
+            return False
     cur_position = stockfish.get_fen_position()
     return stockfish.is_fen_valid(cur_position)
 

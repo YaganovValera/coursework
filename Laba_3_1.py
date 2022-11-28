@@ -132,9 +132,9 @@ class Chess_Board(QThread):
                         USER_board = USER_board = get_cur_position()
                         flag_move_player = not flag_move_player
                     STATUS_game = checking_cur_board()
+                    print(STATUS_game)
                 else:
                     flag_draw_board = True
-                print(USER_board)
                 time.sleep(2)
         except Exception as e:
             print(e)
@@ -158,6 +158,7 @@ class Personal_account(QMainWindow):
         self.timer.start(1000)
 
     def start_board(self):
+        self.restart_board()
         self.cur_board = startBoard()
         self.draw_cur_board()
 
@@ -187,8 +188,6 @@ class Personal_account(QMainWindow):
             self.draw_cur_board()
             return True
         else:
-            self.start_board()
-            self.error_user_board()
             return False
 
     def check_comboBox(self):
@@ -201,11 +200,7 @@ class Personal_account(QMainWindow):
 
     def settings_Game(self):
         global STATUS_game, USER_board, Players, flag_move_player, flag_draw_board
-        STATUS_game = False
-        USER_board = []
-        Players = []
-        flag_move_player = False
-
+        self.restart_board()
         txt_user_board = self.txt_start_board.text().strip()
         if txt_user_board != '' and txt_user_board[-1] == 'w':
             self.flag_move_player = True
@@ -221,15 +216,17 @@ class Personal_account(QMainWindow):
                 USER_board = self.cur_board.board
                 Players = self.players
                 flag_move_player = self.flag_move_player
-                flag_draw_board = False
             else:
                 self.start_board()
                 self.error_user_board()
+        else:
+            self.start_board()
+            self.error_user_board()
 
     def draw_move(self):
         global STATUS_game, USER_board, Players, flag_move_player, flag_draw_board
         try:
-            if STATUS_game and flag_draw_board:
+            if flag_draw_board:
                 for cell in range(0, len(self.game.computer_move), 2):
                     item = QtWidgets.QTableWidgetItem()
                     x = int(self.game.computer_move[cell])
@@ -246,8 +243,18 @@ class Personal_account(QMainWindow):
                     item.setBackground(brush)
                     item.setFlags(QtCore.Qt.ItemIsEnabled)
                     self.table_chess_board.setItem(x, y, item)
+                if not STATUS_game:
+                    flag_draw_board = False
         except Exception as e:
             print(e)
+
+    def restart_board(self):
+        global STATUS_game, USER_board, Players, flag_move_player, flag_draw_board
+        STATUS_game = False
+        USER_board = []
+        Players = []
+        flag_move_player = False
+        flag_draw_board = False
 
     def error_user_board(self):
         error = QMessageBox()
