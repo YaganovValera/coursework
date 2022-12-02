@@ -95,6 +95,25 @@ def transition_board(fen_move):
     return norm_move
 
 
+def getting_col(digit):
+    if digit == 0:
+        return 'a'
+    elif digit == 1:
+        return 'b'
+    elif digit == 2:
+        return 'c'
+    elif digit == 3:
+        return 'd'
+    elif digit == 4:
+        return 'e'
+    elif digit == 5:
+        return 'f'
+    elif digit == 6:
+        return 'g'
+    elif digit == 7:
+        return 'h'
+
+
 def get_computer_move():
     best_move = stockfish.get_best_move()
     stockfish.make_moves_from_current_position([best_move])
@@ -102,9 +121,27 @@ def get_computer_move():
     return best_move
 
 
+def check_correct_move(move):
+    try:
+        if stockfish.is_move_correct(move):
+            stockfish.make_moves_from_current_position([move])
+            return True
+        return False
+    except:
+        return False
+
+
 def get_cur_position():
     cur_position = stockfish.get_fen_position()
     cur_position = make_matrix_board(cur_position)
     return cur_position
 
+
+def get_student_move(kol_move):
+    with open('student_move.txt') as file_student:
+        move_student = file_student.read().split('\n')
+        if len(move_student) >= kol_move:
+            move = move_student[kol_move-1]
+            return move
+        return -1
 
