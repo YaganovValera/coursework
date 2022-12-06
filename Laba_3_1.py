@@ -174,6 +174,8 @@ class Chess_Board(QThread):
                         if not self.check_student_move(student_move):
                             self.correct_student_move = False
                             break
+                        else:
+                            broadcast_move(self.move_for_info, flag_move_player)
 
                     STATUS_game = checking_cur_board()
                     if not STATUS_game:
