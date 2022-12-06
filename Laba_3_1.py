@@ -11,8 +11,6 @@ import sys
 from Game import *
 from HillCipher import *
 
-KEY_login = "stockfish"
-
 STATUS_game = False
 Players = []                # Имена игроков (0 объект - игрок за черных, 1 объект - игрок белых)
 
@@ -28,9 +26,7 @@ class Login(QMainWindow):
     def __init__(self):
         super(Login, self).__init__()
         loadUi("qt_login.ui", self)
-        self.login()
 
-    def login(self):
         self.line_password.setEchoMode(QtWidgets.QLineEdit.Password)
         self.login_btn.clicked.connect(lambda: self.personal_ac())
         self.registr_btn.clicked.connect(lambda: self.registr())
@@ -38,18 +34,18 @@ class Login(QMainWindow):
     def personal_ac(self):
         global username
         username = self.line_username.text().strip()
-        password = self.line_password.text()
-        # if check_login(username, password, KEY_login):
+        password = self.line_password.text().strip()
+        # if check_login(username, password, 'Вход'):
         if True:
             self.line_username.setText('')
             self.line_password.setText('')
             widget.setFixedWidth(900)
-            widget.setFixedHeight(790)
+            widget.setFixedHeight(715)
             widget.setCurrentWidget(account_window)
         else:
             error = QMessageBox()
             error.setWindowTitle("Ошибка\t\t\t\t\t")
-            error.setText("Введен неверный логин или пароль.")
+            error.setText("Введены неверные данные.")
             error.setIcon(QMessageBox.Warning)
             error.setStandardButtons(QMessageBox.Ok)
             error.exec_()
@@ -64,9 +60,7 @@ class Registration(QMainWindow):
     def __init__(self):
         super(Registration, self).__init__()
         loadUi("qt_registration.ui", self)
-        self.registration()
 
-    def registration(self):
         self.new_password.setEchoMode(QtWidgets.QLineEdit.Password)
         self.replay_password.setEchoMode(QtWidgets.QLineEdit.Password)
         self.creat_ac_btn.clicked.connect(lambda: self.login_window(True))
@@ -75,8 +69,8 @@ class Registration(QMainWindow):
     def login_window(self, flag):
         if flag:
             username = self.new_username.text().strip()
-            password = self.new_password.text()
-            replay_password = self.replay_password.text()
+            password = self.new_password.text().strip()
+            replay_password = self.replay_password.text().strip()
             if password != replay_password:
                 error = QMessageBox()
                 error.setWindowTitle("Ошибка\t\t\t\t\t")
@@ -85,8 +79,7 @@ class Registration(QMainWindow):
                 error.setStandardButtons(QMessageBox.Ok)
                 error.exec_()
                 return False
-            registr = check_registr(username, password, KEY_login)
-            if registr ==True:
+            if check_login(username, password, 'Регистрация'):
                 flag = False
             else:
                 error = QMessageBox()
@@ -96,14 +89,14 @@ class Registration(QMainWindow):
                 error.setStandardButtons(QMessageBox.Ok)
                 error.setDetailedText(" Требования к паролю:\n"
                                       "1) Пароль может состоять из: \n"
-                                      "- Латинского алфавита (a-z; A-Z)\n"
-                                      "- знаков препинания ('.', '!', '?', ',', '_')\n"
+                                      "- Латинского и русского алфавита\n"
+                                      "- знаков препинания ('.', '!', '?', '_')\n"
                                       "- цифр (0-9)\n"
                                       "2) Длина пароля должна быть не менее 8 и не более 30\n"
                                       "Требования к логину: \n"
                                       " Длина логина должна быть не менее 2 и не более 50\n\n"
-                                      "Примечание: Если все требования выполняются, но программа выдает ошибку. Это значит,"
-                                      " что пользователь с таким логином или паролем уже существует.")
+                                      "Примечание: Если все требования выполняются, но программа выдает ошибку."
+                                      " Это означает,что такой аккаунт уже существует.")
                 error.exec_()
         if not flag:
             self.new_username.setText('')
@@ -115,8 +108,13 @@ class Registration(QMainWindow):
 class Chess_Board(QThread):
     def __init__(self):
         QThread.__init__(self)
+        self.move_for_info = ''
         self.computer_move = []
         self.counter_move = 2
+        self.correct_student_move = True
+        self.end_game = []
+        self.time_to_move = 0
+        self.start_time = 0.0
 
     def run(self):
         global STATUS_game, USER_board, flag_move_player, Players, flag_draw_board, USER_move, flag_make_move
@@ -127,35 +125,87 @@ class Chess_Board(QThread):
                         if Players[int(flag_move_player)] == "Человек":
                             if len(USER_move) == 4:
                                 if check_correct_move(USER_move):
+                                    self.time_to_move = time.time() - float(self.start_time)
+                                    self.start_time = time.time()
+                                    self.move_for_info = USER_move
                                     self.computer_move = transition_board(USER_move)
                                     USER_board = get_cur_position()
                                     flag_move_player = not flag_move_player
                                     flag_make_move = True
-                                    time.sleep(1)
+                                    broadcast_move(self.move_for_info)
+                                    self.count_move += 1
+                                    USER_move = ''
+                                    continue
                                 USER_move = ''
                         else:
                             student_move = get_student_move(self.count_move)
                             if student_move == -1:
+                                time.sleep(1)
                                 continue
-                            if check_correct_move(student_move):
-                                self.computer_move = transition_board(student_move)
-                                USER_board = get_cur_position()
-                                flag_move_player = not flag_move_player
-                                flag_make_move = True
-                                self.count_move += 1
-                                time.sleep(2)
-                            else:
-                                STATUS_game = False
-                                print("149")
+                            if not self.check_student_move(student_move):
+                                self.correct_student_move = False
                                 break
+
+                    elif "Компьютер" in Players:
+                        if Players[int(flag_move_player)] == "Компьютер":
+                            self.move_for_info, self.computer_move = get_computer_move()
+                            USER_board = get_cur_position()
+                            broadcast_move(self.move_for_info)
+                            flag_move_player = not flag_move_player
+                            flag_make_move = True
+                            self.count_move += 1
+                            self.time_to_move = time.time() - float(self.start_time)
+                            self.start_time = time.time()
+                            continue
+                        else:
+                            student_move = get_student_move(self.count_move)
+                            if student_move == -1:
+                                time.sleep(1)
+                                continue
+                            if not self.check_student_move(student_move):
+                                self.correct_student_move = False
+                                break
+
+                    else:
+                        student_move = student_play(self.count_move, flag_move_player)
+                        if student_move == -1:
+                            time.sleep(1)
+                            continue
+                        if not self.check_student_move(student_move):
+                            self.correct_student_move = False
+                            break
+
                     STATUS_game = checking_cur_board()
+                    if not STATUS_game:
+                        self.end_game = get_end_game(flag_move_player)
                 else:
+                    self.start_time = time.time()
+                    self.correct_student_move = True
+                    self.move_for_info = ''
                     self.count_move = 2
                     flag_draw_board = True
+                    continue
                 time.sleep(1)
         except Exception as e:
-            print("157")
             print(e)
+
+    def check_student_move(self, student_move):
+        global flag_make_move, flag_move_player, USER_board, STATUS_game
+        if check_correct_move(student_move):
+            self.move_for_info = student_move
+            self.computer_move = transition_board(student_move)
+            USER_board = get_cur_position()
+            flag_move_player = not flag_move_player
+            flag_make_move = True
+            self.count_move += 1
+            self.time_to_move = time.time() - float(self.start_time)
+            time.sleep(1)
+            self.start_time = time.time()
+            return True
+        else:
+            self.move_for_info = student_move
+            STATUS_game = False
+            return False
 
 
 # Класс отвечающий за личный кабинет
@@ -165,11 +215,18 @@ class Personal_account(QMainWindow):
         loadUi("qt_personal_ac.ui", self)
         self.start_board()
         self.game = Chess_Board()
+        self.player_color = ["черных", "белых"]
+        self.count_move_white = 1
+        self.count_move_black = 1
+
+        self.textEdit_player_white.setReadOnly(True)
+        self.textEdit_player_black.setReadOnly(True)
 
         self.btn_start_Game.clicked.connect(lambda: self.settings_Game())
         self.btn_start_Game.clicked.connect(lambda: self.game.start())
         self.exit_btn.clicked.connect(lambda: self.exit())
         self.table_chess_board.cellClicked.connect(self.cell_click)
+        self.table_chess_board.cellDoubleClicked.connect(self.cell_doubleclick)
 
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(lambda: self.draw_move())
@@ -177,6 +234,10 @@ class Personal_account(QMainWindow):
 
     def start_board(self):
         self.restart_board()
+        self.game_result.setText('')
+        self.textEdit_player_black.setText('')
+        self.textEdit_player_white.setText('')
+        self.txt_start_board.setText('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w')
         self.cur_board = startBoard()
         self.draw_cur_board()
 
@@ -214,6 +275,7 @@ class Personal_account(QMainWindow):
         if (white == black == "Человек") or (white == black == "Компьютер") \
                 or (white == "Человек" and black == "Компьютер") or (white == "Компьютер" and black == "Человек"):
             return False
+        self.players = [black, white]
         return True
 
     def settings_Game(self):
@@ -227,13 +289,21 @@ class Personal_account(QMainWindow):
         txt_user_board += " - - 0 1"
         if self.check_board(txt_user_board):
             if self.check_comboBox():
-                black_player = self.player_black_comboBox.currentText()
-                white_player = self.player_white_comboBox.currentText()
-                self.players = [black_player, white_player]
+                if ('Человек' in self.players) or ('Компьютер' in self.players):
+                    with open('student_move.txt', 'w') as file_student:
+                        file_student.write(self.txt_start_board.text().strip())
+                else:
+                    with open('white_move.txt', 'w') as file_student:
+                        file_student.write(self.txt_start_board.text().strip())
+                    with open('black_move.txt', 'w') as file_student:
+                        file_student.write(self.txt_start_board.text().strip())
                 STATUS_game = True
                 USER_board = self.cur_board.board
                 Players = self.players
                 flag_move_player = self.flag_move_player
+                flag_draw_board = False
+                self.textEdit_player_black.setText('')
+                self.textEdit_player_white.setText('')
             else:
                 self.start_board()
                 self.error_user_board()
@@ -244,6 +314,9 @@ class Personal_account(QMainWindow):
     def draw_move(self):
         global STATUS_game, USER_board, Players, flag_move_player, flag_draw_board, flag_make_move
         try:
+            if not self.game.correct_student_move:
+                self.error_student()
+                self.game.correct_student_move = True
             if flag_make_move:
                 for cell in range(0, len(self.game.computer_move), 2):
                     item = QtWidgets.QTableWidgetItem()
@@ -262,11 +335,33 @@ class Personal_account(QMainWindow):
                     item.setFlags(QtCore.Qt.ItemIsEnabled)
                     self.table_chess_board.setItem(x, y, item)
                     flag_make_move = False
+                if not flag_move_player:
+                    self.textEdit_player_white.setText(self.textEdit_player_white.toPlainText() + str(self.count_move_white)
+                                                       + ") Ход: " + self.game.move_for_info + " / Время на ход: "
+                                                       + str(int(self.game.time_to_move)) + " сек;\n")
+                    self.count_move_white += 1
+                else:
+                    self.textEdit_player_black.setText(self.textEdit_player_black.toPlainText() + str(self.count_move_black)
+                                                       + ") " + self.game.move_for_info + " / Время на ход: "
+                                                       + str(int(self.game.time_to_move)) + " сек;\n")
+                    self.count_move_black += 1
                 if not STATUS_game:
                     flag_make_move = False
+                    if len(self.game.end_game) != 0:
+                        self.game_result.setText(self.game.end_game)
+
         except Exception as e:
-            print("268")
             print(e)
+
+    def error_student(self):
+        global Players, flag_move_player
+        error = QMessageBox()
+        error.setWindowTitle("Ошибка со стороны студента!\t\t\t\t\t")
+        error.setText("Введены неверный данные со стороны " + self.player_color[flag_move_player])
+        error.setIcon(QMessageBox.Warning)
+        error.setStandardButtons(QMessageBox.Ok)
+        error.setDetailedText("Со стороны программы студента были введены следующие данные: " + self.game.move_for_info)
+        error.exec_()
 
     def restart_board(self):
         global STATUS_game, USER_board, Players, flag_move_player, flag_draw_board, USER_move, flag_make_move
@@ -277,6 +372,8 @@ class Personal_account(QMainWindow):
         flag_make_move = False
         USER_board = []
         USER_move = ''
+        self.count_move_white = 1
+        self.count_move_black = 1
 
     def cell_click(self, row, col):
         global USER_move, flag_move_player, Players, USER_board, USER_move, STATUS_game
@@ -286,8 +383,19 @@ class Personal_account(QMainWindow):
             move = letter + digit
             if len(USER_move) < 2 and USER_board[row][col] != "--":
                 USER_move += move
-            elif len(USER_move) < 4:
+            elif len(USER_move) == 2:
                 USER_move += move
+
+    def cell_doubleclick(self, row, col):
+        global USER_move, flag_move_player, Players, USER_board, USER_move, STATUS_game
+        if STATUS_game and Players[flag_move_player] == "Человек":
+            letter = getting_col(col)
+            digit = str(8 - row)
+            move = letter + digit
+            if USER_board[row][col] != "--":
+                USER_move = move
+            else:
+                USER_move = ''
 
     def error_user_board(self):
         error = QMessageBox()
@@ -298,7 +406,7 @@ class Personal_account(QMainWindow):
         error.setDetailedText("Данные должны быть представлены по стандарту FEN.\n"
                               "Пример начальной расстановки: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w.\n"
                               "\n"
-                              "В игре Человек не может играть против Компьютера и Человека. И компьютер не может играть против компьютера.")
+                              "В игре отсутствуют следующие режимы: Человек/Человек; Компьютер/Человек; Компьютер/Компьютер.")
         error.exec_()
 
     def exit(self):

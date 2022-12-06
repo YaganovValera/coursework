@@ -1,10 +1,9 @@
-import chess
-import chess.engine
+import time
+
 from stockfish import Stockfish
+import chess
 
 stockfish = Stockfish("stockfish_15_win_x64_avx2/stockfish_15_x64_avx2.exe")
-
-board = chess.Board()
 
 
 class startBoard:
@@ -38,34 +37,34 @@ def make_matrix_board(board):
     rows = pieces.split("/")
     for row in rows:
         cur_board = []
-        for thing in row:
-            if thing.isdigit():
-                for i in range(0, int(thing)):
+        for cell in row:
+            if cell.isdigit():
+                for i in range(0, int(cell)):
                     cur_board.append('--')
             else:
-                if thing == 'r':
+                if cell == 'r':
                     cur_board.append('bR')
-                if thing == 'n':
+                if cell == 'n':
                     cur_board.append('bN')
-                if thing == 'b':
+                if cell == 'b':
                     cur_board.append('bB')
-                if thing == 'q':
+                if cell == 'q':
                     cur_board.append('bQ')
-                if thing == 'k':
+                if cell == 'k':
                     cur_board.append('bK')
-                if thing == 'p':
+                if cell == 'p':
                     cur_board.append('bP')
-                if thing == 'P':
+                if cell == 'P':
                     cur_board.append('wP')
-                if thing == 'R':
+                if cell == 'R':
                     cur_board.append('wR')
-                if thing == 'N':
+                if cell == 'N':
                     cur_board.append('wN')
-                if thing == 'B':
+                if cell == 'B':
                     cur_board.append('wB')
-                if thing == 'Q':
+                if cell == 'Q':
                     cur_board.append('wQ')
-                if thing == 'K':
+                if cell == 'K':
                     cur_board.append('wK')
         end_board.append(cur_board)
     return end_board
@@ -73,62 +72,32 @@ def make_matrix_board(board):
 
 def transition_board(fen_move):
     norm_move = [1, 2, 3, 4]
+    column = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
     for item in range(len(fen_move)):
         if fen_move[item].isdigit():
             norm_move[item-1] = (7 - (int(fen_move[item]) - 1))
-        elif fen_move[item] == 'a':
-            norm_move[item+1] = 0
-        elif fen_move[item] == 'b':
-            norm_move[item+1] = 1
-        elif fen_move[item] == 'c':
-            norm_move[item+1] = 2
-        elif fen_move[item] == 'd':
-            norm_move[item+1] = 3
-        elif fen_move[item] == 'e':
-            norm_move[item+1] = 4
-        elif fen_move[item] == 'f':
-            norm_move[item+1] = 5
-        elif fen_move[item] == 'g':
-            norm_move[item+1] = 6
-        elif fen_move[item] == 'h':
-            norm_move[item+1] = 7
+        else:
+            norm_move[item + 1] = column.index(fen_move[item])
     return norm_move
 
 
 def getting_col(digit):
-    if digit == 0:
-        return 'a'
-    elif digit == 1:
-        return 'b'
-    elif digit == 2:
-        return 'c'
-    elif digit == 3:
-        return 'd'
-    elif digit == 4:
-        return 'e'
-    elif digit == 5:
-        return 'f'
-    elif digit == 6:
-        return 'g'
-    elif digit == 7:
-        return 'h'
+    column = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+    return column[digit]
 
 
 def get_computer_move():
-    best_move = stockfish.get_best_move()
-    stockfish.make_moves_from_current_position([best_move])
-    best_move = transition_board(best_move)
-    return best_move
+    move_for_info = stockfish.get_best_move()
+    stockfish.make_moves_from_current_position([move_for_info])
+    computer_move = transition_board(move_for_info)
+    return move_for_info, computer_move
 
 
 def check_correct_move(move):
-    try:
-        if stockfish.is_move_correct(move):
-            stockfish.make_moves_from_current_position([move])
-            return True
-        return False
-    except:
-        return False
+    if stockfish.is_move_correct(move):
+        stockfish.make_moves_from_current_position([move])
+        return True
+    return False
 
 
 def get_cur_position():
@@ -137,11 +106,61 @@ def get_cur_position():
     return cur_position
 
 
-def get_student_move(kol_move):
+def get_student_move(kol_move):                         # режимы компьютер-программа, человек-программа
     with open('student_move.txt') as file_student:
         move_student = file_student.read().split('\n')
-        if len(move_student) >= kol_move:
+        if len(move_student) == kol_move:
             move = move_student[kol_move-1]
+            if len(move) == 0:
+                return -1
             return move
         return -1
 
+
+def student_play(kol_move, flag_move_player):
+    if flag_move_player:
+        with open('white_move.txt') as file_student:
+            move_student = file_student.read().split('\n')
+            if len(move_student) == kol_move:
+                move = move_student[kol_move - 1]
+                if len(move) == 0:
+                    return -1
+                return move
+            return -1
+    else:
+        with open('black_move.txt') as file_student:
+            move_student = file_student.read().split('\n')
+            if len(move_student) == kol_move:
+                move = move_student[kol_move - 1]
+                if len(move) == 0:
+                    return -1
+                return move
+            return -1
+
+
+def broadcast_move(move, flag_move_player=None):
+    if flag_move_player:
+        with open('white_move.txt', 'a', encoding='utf-8') as file_student:
+            file_student.write("\nХод противника: " + move)
+    elif flag_move_player == None:
+        with open('student_move.txt', 'a', encoding='utf-8') as file_student:
+            file_student.write("\nХод противника: " + move)
+    else:
+        with open('black_move.txt', 'a', encoding='utf-8') as file_student:
+            file_student.write("\nХод противника: " + move)
+
+
+def get_end_game(flag_move_player):
+    board = chess.Board(stockfish.get_fen_position())
+    if board.is_stalemate():
+        if flag_move_player:
+            return 'Черные поставили пат.'
+        else:
+            return 'Белые поставили пат.'
+    elif board.is_insufficient_material():
+        return 'Ничья из-за недостаточного материала.'
+    else:
+        if flag_move_player:
+            return 'Черные поставили мат.'
+        else:
+            return 'Белые поставили мат.'
