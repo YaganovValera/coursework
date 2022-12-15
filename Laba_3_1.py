@@ -12,14 +12,15 @@ from Game import *
 from HillCipher import *
 
 STATUS_game = False
-Players = []                # Имена игроков (0 объект - игрок за черных, 1 объект - игрок белых)
+Players = []                    # Имена игроков (0 объект - игрок за черных, 1 объект - игрок белых)
 
-flag_draw_board = False     # Начальная отрисовка пользовательской доски
-flag_move_player = False    # Смена хода (False - ход черных, True - ход белых)
-flag_make_move = False      # Сделан ход (False - нет, True - да)
+CELL_selection = []             # Для подсветки выброной фигуры
+flag_draw_board = False         # Начальная отрисовка пользовательской доски
+flag_move_player = False        # Смена хода (False - ход черных, True - ход белых)
+flag_make_move = False          # Сделан ход (False - нет, True - да)
 
-USER_board = []             # Доска пользователя в матричном виде
-USER_move = ''              # Ход человека
+USER_board = []                 # Доска пользователя в матричном виде
+USER_move = ''                  # Ход человека
 
 # Класс отвечающий за стартовое окно
 class Login(QMainWindow):
@@ -378,26 +379,58 @@ class Personal_account(QMainWindow):
         self.count_move_black = 1
 
     def cell_click(self, row, col):
-        global USER_move, flag_move_player, Players, USER_board, USER_move, STATUS_game
+        global USER_move, flag_move_player, Players, USER_board, USER_move, STATUS_game, CELL_selection
         if STATUS_game and Players[flag_move_player] == "Человек":
             letter = getting_col(col)
             digit = str(8 - row)
             move = letter + digit
             if len(USER_move) < 2 and USER_board[row][col] != "--":
+                CELL_selection = [row, col]
+                self.cell_selected(CELL_selection, True)
                 USER_move += move
             elif len(USER_move) == 2:
+                self.cell_selected(CELL_selection, False)
                 USER_move += move
 
     def cell_doubleclick(self, row, col):
-        global USER_move, flag_move_player, Players, USER_board, USER_move, STATUS_game
-        if STATUS_game and Players[flag_move_player] == "Человек":
-            letter = getting_col(col)
-            digit = str(8 - row)
-            move = letter + digit
-            if USER_board[row][col] != "--":
-                USER_move = move
+        try:
+            global USER_move, flag_move_player, Players, USER_board, USER_move, STATUS_game, CELL_selection
+            if STATUS_game and Players[flag_move_player] == "Человек":
+                letter = getting_col(col)
+                digit = str(8 - row)
+                move = letter + digit
+                if USER_board[row][col] != "--":
+                    self.cell_selected(CELL_selection, False)
+                    CELL_selection = [row, col]
+                    self.cell_selected(CELL_selection, True)
+                    USER_move = move
+                else:
+                    USER_move = ''
+        except Exception as e:
+            print(e)
+
+    def cell_selected(self, cell_data, flag_rendering):
+        try:
+            item = QtWidgets.QTableWidgetItem()
+            x = cell_data[0]
+            y = cell_data[1]
+            if USER_board[x][y] != "--":
+                icon = QtGui.QIcon()
+                icon.addPixmap(QtGui.QPixmap('img/' + USER_board[x][y] + '.png'), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+                item.setIcon(icon)
+            if flag_rendering:
+                brush = QtGui.QBrush(QtGui.QColor(266, 167, 72))
             else:
-                USER_move = ''
+                if (x + y) % 2 != 0:
+                    brush = QtGui.QBrush(QtGui.QColor(170, 102, 6))
+                else:
+                    brush = QtGui.QBrush(QtGui.QColor(255, 209, 99))
+            brush.setStyle(QtCore.Qt.SolidPattern)
+            item.setBackground(brush)
+            item.setFlags(QtCore.Qt.ItemIsEnabled)
+            self.table_chess_board.setItem(x, y, item)
+        except Exception as e:
+            print(e)
 
     def error_user_board(self):
         error = QMessageBox()
