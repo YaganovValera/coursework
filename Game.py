@@ -1,7 +1,7 @@
 #!/urs/bin/python3
 #-*- coding: utf-8 -*-
-import time
 
+import time
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtCore import QThread
 from PyQt5.uic import loadUi
