@@ -2,6 +2,7 @@ from stockfish import Stockfish
 import chess
 
 stockfish = Stockfish("stockfish_15_win_x64_avx2/stockfish_15_x64_avx2.exe")
+column = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
 
 
 class startBoard:
@@ -49,7 +50,6 @@ def make_matrix_board(board):
 
 def transition_board(fen_move):
     norm_move = [1, 2, 3, 4]
-    column = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
     for item in range(len(fen_move)):
         if fen_move[item].isdigit():
             norm_move[item-1] = (7 - (int(fen_move[item]) - 1))
@@ -59,7 +59,6 @@ def transition_board(fen_move):
 
 
 def getting_col(digit):
-    column = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
     return column[digit]
 
 
