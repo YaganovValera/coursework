@@ -31,6 +31,8 @@ def checking_cur_board(board=None):
 
 def make_matrix_board(board):
     end_board = []
+    correct_board = {'r': 'bR', 'n': 'bN', 'b': 'bB', 'q': 'bQ', 'k': 'bK', 'p': 'bP',
+                     'P': 'wP', 'R': 'wR', 'N': 'wN', 'B': 'wB', 'Q': 'wQ', 'K': 'wK'}
     pieces = board.split(" ", 1)[0]
     rows = pieces.split("/")
     for row in rows:
@@ -40,30 +42,7 @@ def make_matrix_board(board):
                 for i in range(0, int(cell)):
                     cur_board.append('--')
             else:
-                if cell == 'r':
-                    cur_board.append('bR')
-                if cell == 'n':
-                    cur_board.append('bN')
-                if cell == 'b':
-                    cur_board.append('bB')
-                if cell == 'q':
-                    cur_board.append('bQ')
-                if cell == 'k':
-                    cur_board.append('bK')
-                if cell == 'p':
-                    cur_board.append('bP')
-                if cell == 'P':
-                    cur_board.append('wP')
-                if cell == 'R':
-                    cur_board.append('wR')
-                if cell == 'N':
-                    cur_board.append('wN')
-                if cell == 'B':
-                    cur_board.append('wB')
-                if cell == 'Q':
-                    cur_board.append('wQ')
-                if cell == 'K':
-                    cur_board.append('wK')
+                cur_board.append(correct_board[cell])
         end_board.append(cur_board)
     return end_board
 
