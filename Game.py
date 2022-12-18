@@ -135,8 +135,6 @@ class Chess_Board(QThread):
                                     flag_make_move = True
                                     broadcast_move(self.move_for_info)
                                     self.count_move += 1
-                                    USER_move = ''
-                                    continue
                                 USER_move = ''
                         else:
                             student_move = get_student_move(self.count_move)
@@ -157,7 +155,6 @@ class Chess_Board(QThread):
                             self.count_move += 1
                             self.time_to_move = time.time() - float(self.start_time)
                             self.start_time = time.time()
-                            continue
                         else:
                             student_move = get_student_move(self.count_move)
                             if student_move == -1:
@@ -166,7 +163,6 @@ class Chess_Board(QThread):
                             if not self.check_student_move(student_move):
                                 self.correct_student_move = False
                                 break
-
                     else:
                         student_move = student_play(self.count_move, flag_move_player)
                         if student_move == -1:
@@ -181,6 +177,8 @@ class Chess_Board(QThread):
                     STATUS_game = checking_cur_board()
                     if not STATUS_game:
                         self.end_game = get_end_game(flag_move_player)
+                    else:
+                        continue
                 else:
                     self.start_time = time.time()
                     self.correct_student_move = True
@@ -240,7 +238,6 @@ class Personal_account(QMainWindow):
         self.game_result.setText('')
         self.textEdit_player_black.setText('')
         self.textEdit_player_white.setText('')
-        self.txt_start_board.setText('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w')
         self.cur_board = startBoard()
         self.draw_cur_board()
 
@@ -455,6 +452,7 @@ class Personal_account(QMainWindow):
     def click_btn(self, btn):
         if btn.text() == 'OK':
             self.start_board()
+            self.txt_start_board.setText('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w')
             widget.setFixedWidth(560)
             widget.setFixedHeight(350)
             widget.setCurrentWidget(login_window)
