@@ -1,5 +1,3 @@
-import time
-
 from stockfish import Stockfish
 import chess
 
