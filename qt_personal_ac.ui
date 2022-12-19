@@ -740,9 +740,21 @@ color: rgb(0, 0, 0);</string>
      <rect>
       <x>50</x>
       <y>100</y>
-      <width>480</width>
-      <height>480</height>
+      <width>482</width>
+      <height>482</height>
      </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>482</width>
+      <height>482</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>482</width>
+      <height>482</height>
+     </size>
     </property>
     <property name="mouseTracking">
      <bool>true</bool>
