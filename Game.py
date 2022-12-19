@@ -22,6 +22,7 @@ flag_make_move = False          # Сделан ход (False - нет, True - д
 USER_board = []                 # Доска пользователя в матричном виде
 USER_move = ''                  # Ход человека
 
+
 # Класс отвечающий за стартовое окно
 class Login(QMainWindow):
     def __init__(self):
@@ -36,8 +37,7 @@ class Login(QMainWindow):
         global username
         username = self.line_username.text().strip()
         password = self.line_password.text().strip()
-        # if check_login(username, password, 'Вход'):
-        if True:
+        if check_login(username, password, 'Вход'):
             self.line_username.setText('')
             self.line_password.setText('')
             widget.setFixedWidth(900)
@@ -50,6 +50,7 @@ class Login(QMainWindow):
             error.setIcon(QMessageBox.Warning)
             error.setStandardButtons(QMessageBox.Ok)
             error.exec_()
+
     def registr(self):
         self.line_username.setText('')
         self.line_password.setText('')
