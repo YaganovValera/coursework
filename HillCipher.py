@@ -2,7 +2,7 @@ import numpy as np
 
 alpha = tuple("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.!?"
               "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя ")
-KEY_login = "stockfish"
+KEY_login = "stockfish"             # длина должна быть 9 символов!
 
 
 # Подготовка ключа
@@ -21,15 +21,6 @@ def key_verification(key):
         return digit_key
     except:
         return 0
-
-
-# Расширенный алгоритма Евклида
-def gcd_extended(num1, num2):
-    if num1 == 0:
-        return (num2, 0, 1)
-    else:
-        div, x, y = gcd_extended(num2 % num1, num1)
-    return (div, y - (num2 // num1) * x, x)
 
 
 # Преобразование текста в цифры
