@@ -137,6 +137,9 @@ class Chess_Board(QThread):
                                     broadcast_move(self.move_for_info)
                                     self.count_move += 1
                                 USER_move = ''
+                            else:
+                                time.sleep(1)
+                                continue
                         else:
                             student_move = get_student_move(self.count_move)
                             if student_move == -1:
@@ -288,8 +291,8 @@ class Personal_account(QMainWindow):
         else:
             self.flag_move_player = False
         txt_user_board += " - - 0 1"
-        if self.check_board(txt_user_board):
-            if self.check_comboBox():
+        if self.check_comboBox():
+            if self.check_board(txt_user_board):
                 if ('Человек' in self.players) or ('Компьютер' in self.players):
                     with open('student_move.txt', 'w') as file_student:
                         file_student.write(self.txt_start_board.text().strip())
