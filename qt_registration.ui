@@ -26,7 +26,8 @@
    <string>Регистрация</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background-color: rgb(251, 255, 199);</string>
+   <string notr="true">background-color: rgb(72, 72, 72);
+color: rgb(255, 255, 255);</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QLabel" name="l_title_reg">
@@ -125,7 +126,8 @@
         <cursorShape>PointingHandCursor</cursorShape>
        </property>
        <property name="styleSheet">
-        <string notr="true">background-color: rgb(251, 255, 220);</string>
+        <string notr="true">
+background-color: rgb(60, 60, 60);</string>
        </property>
        <property name="text">
         <string>Вернуться</string>
@@ -165,8 +167,8 @@
      <cursorShape>PointingHandCursor</cursorShape>
     </property>
     <property name="styleSheet">
-     <string notr="true">board: 1px inset blue; 
-background-color: rgb(250, 250, 220);</string>
+     <string notr="true">
+background-color: rgb(60, 60, 60);</string>
     </property>
     <property name="text">
      <string>Создать</string>
@@ -236,7 +238,8 @@ background-color: rgb(250, 250, 220);</string>
           </font>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
+          <string notr="true">background-color: rgb(255, 255, 255);
+color: rgb(0, 0, 0);</string>
          </property>
          <property name="text">
           <string/>
@@ -280,10 +283,16 @@ background-color: rgb(250, 250, 220);</string>
        </item>
        <item>
         <widget class="QLineEdit" name="new_password">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="minimumSize">
           <size>
-           <width>300</width>
-           <height>20</height>
+           <width>0</width>
+           <height>0</height>
           </size>
          </property>
          <property name="maximumSize">
@@ -299,7 +308,8 @@ background-color: rgb(250, 250, 220);</string>
           </font>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
+          <string notr="true">background-color: rgb(255, 255, 255);
+color: rgb(0, 0, 0);</string>
          </property>
          <property name="text">
           <string/>
@@ -362,7 +372,8 @@ background-color: rgb(250, 250, 220);</string>
           </font>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
+          <string notr="true">background-color: rgb(255, 255, 255);
+color: rgb(0, 0, 0);</string>
          </property>
          <property name="text">
           <string/>

@@ -1,6 +1,7 @@
 from stockfish import Stockfish
 import chess
 
+
 stockfish = Stockfish("stockfish_15_win_x64_avx2/stockfish_15_x64_avx2.exe")
 column = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
 
