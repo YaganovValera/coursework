@@ -1,6 +1,8 @@
-from stockfish import Stockfish
-import chess
+import subprocess
+from _winapi import CREATE_NO_WINDOW
 
+import chess
+from models import Stockfish
 
 stockfish = Stockfish("stockfish_15_win_x64_avx2/stockfish_15_x64_avx2.exe")
 column = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
