@@ -136,8 +136,6 @@ def get_end_game(flag_move_player):
             return 'Черные поставили пат.'
         else:
             return 'Белые поставили пат.'
-    elif board.is_insufficient_material():
-        return 'Ничья из-за недостаточного материала.'
     else:
         if flag_move_player:
             return 'Черные поставили мат.'
