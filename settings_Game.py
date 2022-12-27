@@ -35,8 +35,8 @@ def checking_cur_board(board=None):
 
 def make_matrix_board(board):
     end_board = []
-    correct_board = {'r': 'bR', 'n': 'bN', 'b': 'bB', 'q': 'bQ', 'k': 'bK', 'p': 'bP',
-                     'P': 'wP', 'R': 'wR', 'N': 'wN', 'B': 'wB', 'Q': 'wQ', 'K': 'wK'}
+    correct_board = {'r': 'bR', 'n': 'bN', 'b': 'bB', 'q': 'bQ', 'k': 'bK', 'p': 'bp',
+                     'P': 'wp', 'R': 'wR', 'N': 'wN', 'B': 'wB', 'Q': 'wQ', 'K': 'wK'}
     pieces = board.split(" ", 1)[0]
     rows = pieces.split("/")
     for row in rows:

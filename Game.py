@@ -27,7 +27,7 @@ USER_move = ''                  # Ход человека
 class Login(QMainWindow):
     def __init__(self):
         super(Login, self).__init__()
-        loadUi("qt_login.ui", self)
+        loadUi("Qt_form/qt_login.ui", self)
 
         self.line_password.setEchoMode(QtWidgets.QLineEdit.Password)
         self.login_btn.clicked.connect(lambda: self.personal_ac())
@@ -37,7 +37,8 @@ class Login(QMainWindow):
         global username
         username = self.line_username.text().strip()
         password = self.line_password.text().strip()
-        if check_login(username, password, 'Вход'):
+        if True:
+        # if check_login(username, password, 'Вход'):
             self.line_username.setText('')
             self.line_password.setText('')
             widget.setFixedWidth(900)
@@ -61,7 +62,7 @@ class Login(QMainWindow):
 class Registration(QMainWindow):
     def __init__(self):
         super(Registration, self).__init__()
-        loadUi("qt_registration.ui", self)
+        loadUi("Qt_form/qt_registration.ui", self)
 
         self.new_password.setEchoMode(QtWidgets.QLineEdit.Password)
         self.replay_password.setEchoMode(QtWidgets.QLineEdit.Password)
@@ -217,7 +218,7 @@ class Chess_Board(QThread):
 class Personal_account(QMainWindow):
     def __init__(self):
         super(Personal_account, self).__init__()
-        loadUi("qt_personal_ac.ui", self)
+        loadUi("Qt_form/qt_personal_ac.ui", self)
         self.start_board()
         self.game = Chess_Board()
         self.player_color = ["черных", "белых"]
@@ -338,7 +339,31 @@ class Personal_account(QMainWindow):
                     item.setBackground(brush)
                     item.setFlags(QtCore.Qt.ItemIsEnabled)
                     self.table_chess_board.setItem(x, y, item)
-                    flag_make_move = False
+
+                # Отрисовка взятия на проходе
+                if (USER_board[int(self.game.computer_move[2])][int(self.game.computer_move[3])] == "wp"
+                        and int(self.game.computer_move[0]) == 3) or \
+                        (USER_board[int(self.game.computer_move[2])][int(self.game.computer_move[3])] == "bp"
+                         and int(self.game.computer_move[0]) == 4)\
+                        and int(self.game.computer_move[1]) != int(self.game.computer_move[3]):
+                    x = int(self.game.computer_move[0])
+                    y = int(self.game.computer_move[3])
+                    item = QtWidgets.QTableWidgetItem()
+                    if USER_board[x][y] != "--":
+                        icon = QtGui.QIcon()
+                        icon.addPixmap(QtGui.QPixmap('img/' + USER_board[x][y] + '.png'), QtGui.QIcon.Normal,
+                                       QtGui.QIcon.Off)
+                        item.setIcon(icon)
+                    if (x + y) % 2 != 0:
+                        brush = QtGui.QBrush(QtGui.QColor(170, 102, 6))
+                    else:
+                        brush = QtGui.QBrush(QtGui.QColor(255, 209, 99))
+                    brush.setStyle(QtCore.Qt.SolidPattern)
+                    item.setBackground(brush)
+                    item.setFlags(QtCore.Qt.ItemIsEnabled)
+                    self.table_chess_board.setItem(x, y, item)
+
+                flag_make_move = False
                 if not flag_move_player:
                     self.textEdit_player_white.setText(self.textEdit_player_white.toPlainText() + str(self.count_move_white)
                                                        + ") Ход: " + self.game.move_for_info + " / Время на ход: "
