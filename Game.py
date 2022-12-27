@@ -183,6 +183,10 @@ class Chess_Board(QThread):
                     if not STATUS_game:
                         self.end_game = get_end_game(flag_move_player)
                     else:
+                        board = chess.Board(stockfish.get_fen_position())
+                        if board.is_insufficient_material():
+                            self.end_game = 'Ничья из-за недостаточного материала.'
+                            STATUS_game = False
                         continue
                 else:
                     self.start_time = time.time()
