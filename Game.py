@@ -236,7 +236,6 @@ class Personal_account(QMainWindow):
 
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(lambda: self.draw_move())
-        self.timer.start(1000)
 
     def set_time(self, value):
         self.label_time.setText(str(value))
@@ -325,6 +324,7 @@ class Personal_account(QMainWindow):
                         file_student.write("Ход сделанный противником:\n")
                         file_student.write("Введите ваш ход:")
 
+                self.timer.start(1000)
                 STATUS_game = True
                 USER_board = self.cur_board.board
                 Players = self.players
@@ -400,6 +400,7 @@ class Personal_account(QMainWindow):
                     flag_make_move = False
                     if len(self.game.end_game) != 0:
                         self.game_result.setText(self.game.end_game)
+                        self.timer.stop()
 
         except Exception as e:
             print(e)
@@ -510,7 +511,7 @@ class Personal_account(QMainWindow):
         if btn.text() == 'OK':
             self.start_board()
             self.txt_start_board.setText('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w')
-
+            self.timer.stop()
             widget.setFixedWidth(560)
             widget.setFixedHeight(350)
             widget.setCurrentWidget(login_window)
