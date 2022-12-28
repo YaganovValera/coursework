@@ -1,0 +1,6 @@
+rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w
+Ход противника: c2c4
+h7h6
+Ход противника: c4c5
+d7d5
+Ход противника: c5d6

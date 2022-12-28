@@ -113,7 +113,6 @@ class Chess_Board(QThread):
         QThread.__init__(self)
         self.move_for_info = ''
         self.computer_move = []
-        self.counter_move = 2
         self.correct_student_move = True
         self.end_game = []
         self.time_to_move = 0
@@ -136,13 +135,12 @@ class Chess_Board(QThread):
                                     flag_move_player = not flag_move_player
                                     flag_make_move = True
                                     broadcast_move(self.move_for_info)
-                                    self.count_move += 1
                                 USER_move = ''
                             else:
                                 time.sleep(1)
                                 continue
                         else:
-                            student_move = get_student_move(self.count_move)
+                            student_move = get_student_move()
                             if student_move == -1:
                                 time.sleep(1)
                                 continue
@@ -157,11 +155,10 @@ class Chess_Board(QThread):
                             broadcast_move(self.move_for_info)
                             flag_move_player = not flag_move_player
                             flag_make_move = True
-                            self.count_move += 1
                             self.time_to_move = time.time() - float(self.start_time)
                             self.start_time = time.time()
                         else:
-                            student_move = get_student_move(self.count_move)
+                            student_move = get_student_move()
                             if student_move == -1:
                                 time.sleep(1)
                                 continue
@@ -169,7 +166,7 @@ class Chess_Board(QThread):
                                 self.correct_student_move = False
                                 break
                     else:
-                        student_move = student_play(self.count_move, flag_move_player)
+                        student_move = student_play(flag_move_player)
                         if student_move == -1:
                             time.sleep(1)
                             continue
@@ -192,7 +189,6 @@ class Chess_Board(QThread):
                     self.start_time = time.time()
                     self.correct_student_move = True
                     self.move_for_info = ''
-                    self.count_move = 2
                     flag_draw_board = True
                     continue
                 time.sleep(1)
@@ -207,7 +203,6 @@ class Chess_Board(QThread):
             USER_board = get_cur_position()
             flag_move_player = not flag_move_player
             flag_make_move = True
-            self.count_move += 1
             self.time_to_move = time.time() - float(self.start_time)
             time.sleep(1)
             self.start_time = time.time()
@@ -237,10 +232,14 @@ class Personal_account(QMainWindow):
         self.exit_btn.clicked.connect(lambda: self.exit())
         self.table_chess_board.cellClicked.connect(self.cell_click)
         self.table_chess_board.cellDoubleClicked.connect(self.cell_doubleclick)
+        self.horizontalSlider.valueChanged.connect(self.set_time)
 
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(lambda: self.draw_move())
         self.timer.start(1000)
+
+    def set_time(self, value):
+        self.label_time.setText(str(value))
 
     def start_board(self):
         self.restart_board()
@@ -292,24 +291,43 @@ class Personal_account(QMainWindow):
         self.restart_board()
         txt_user_board = self.txt_start_board.text().strip()
         if txt_user_board != '' and txt_user_board[-1] == 'w':
-            self.flag_move_player = True
+            flag_move_player = True
         else:
-            self.flag_move_player = False
+            flag_move_player = False
         txt_user_board += " - - 0 1"
         if self.check_comboBox():
             if self.check_board(txt_user_board):
+
                 if ('Человек' in self.players) or ('Компьютер' in self.players):
-                    with open('student_move.txt', 'w') as file_student:
-                        file_student.write(self.txt_start_board.text().strip())
+                    with open('student_move.txt', 'w', encoding='utf8') as file_student:
+                        file_student.write(self.txt_start_board.text().strip() + '\n')
+                        if self.players[int(flag_move_player)] == 'Программа студента' and int(flag_move_player) == 0:
+                            file_student.write("Ваш ход.\n")
+                        else:
+                            file_student.write("Ход противника.\n")
+                        file_student.write("Ход сделанный противником:\n")
+                        file_student.write("Введите ваш ход:")
                 else:
-                    with open('white_move.txt', 'w') as file_student:
-                        file_student.write(self.txt_start_board.text().strip())
-                    with open('black_move.txt', 'w') as file_student:
-                        file_student.write(self.txt_start_board.text().strip())
+                    with open('white_move.txt', 'w', encoding='utf8') as file_student:
+                        file_student.write(self.txt_start_board.text().strip()+'\n')
+                        if int(flag_move_player) == 1:
+                            file_student.write("Ваш ход.\n")
+                        else:
+                            file_student.write("Ход противника.\n")
+                        file_student.write("Ход сделанный противником:\n")
+                        file_student.write("Введите ваш ход:")
+                    with open('black_move.txt', 'w', encoding='utf8') as file_student:
+                        file_student.write(self.txt_start_board.text().strip() + '\n')
+                        if int(flag_move_player) == 0:
+                            file_student.write("Ваш ход.\n")
+                        else:
+                            file_student.write("Ход противника.\n")
+                        file_student.write("Ход сделанный противником:\n")
+                        file_student.write("Введите ваш ход:")
+
                 STATUS_game = True
                 USER_board = self.cur_board.board
                 Players = self.players
-                flag_move_player = self.flag_move_player
                 flag_draw_board = False
                 self.textEdit_player_black.setText('')
                 self.textEdit_player_white.setText('')
@@ -375,7 +393,7 @@ class Personal_account(QMainWindow):
                     self.count_move_white += 1
                 else:
                     self.textEdit_player_black.setText(self.textEdit_player_black.toPlainText() + str(self.count_move_black)
-                                                       + ") " + self.game.move_for_info + " / Время на ход: "
+                                                       + ") Ход: " + self.game.move_for_info + " / Время на ход: "
                                                        + str(int(self.game.time_to_move)) + " сек;\n")
                     self.count_move_black += 1
                 if not STATUS_game:
@@ -407,6 +425,12 @@ class Personal_account(QMainWindow):
         USER_move = ''
         self.count_move_white = 1
         self.count_move_black = 1
+        with open('student_move.txt', 'w', encoding='utf-8') as file_student:
+            file_student.write('')
+        with open('black_move.txt', 'w', encoding='utf-8') as file_student:
+            file_student.write('')
+        with open('white_move.txt', 'w', encoding='utf-8') as file_student:
+            file_student.write('')
 
     def cell_click(self, row, col):
         global USER_move, flag_move_player, Players, USER_board, USER_move, STATUS_game, CELL_selection
@@ -486,6 +510,7 @@ class Personal_account(QMainWindow):
         if btn.text() == 'OK':
             self.start_board()
             self.txt_start_board.setText('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w')
+
             widget.setFixedWidth(560)
             widget.setFixedHeight(350)
             widget.setCurrentWidget(login_window)

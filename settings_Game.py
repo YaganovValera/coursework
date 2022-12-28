@@ -85,48 +85,62 @@ def get_cur_position():
     return cur_position
 
 
-def get_student_move(kol_move):                         # режимы компьютер-программа, человек-программа
-    with open('student_move.txt') as file_student:
-        move_student = file_student.read().split('\n')
-        if len(move_student) == kol_move:
-            move = move_student[kol_move-1]
-            if len(move) == 0:
-                return -1
-            return move
-        return -1
+def get_student_move():                         # режимы компьютер-программа, человек-программа
+    with open('student_move.txt', 'r', encoding='utf-8') as file_student:
+        text_info = file_student.readlines()
+        if text_info[3].strip().split(':')[1].strip() == '':
+            return -1
+        else:
+            with open('student_move.txt', 'w', encoding='utf-8') as file_student:
+                file_student.write(text_info[0])
+                file_student.write("Ход противника.\n")
+                file_student.write("Ход сделанный противником:\n")
+                file_student.write(text_info[3])
+            return text_info[3].strip().split(':')[1].strip()
 
 
-def student_play(kol_move, flag_move_player):
+def student_play(flag_move_player):
     if flag_move_player:
-        with open('white_move.txt') as file_student:
-            move_student = file_student.read().split('\n')
-            if len(move_student) == kol_move:
-                move = move_student[kol_move - 1]
-                if len(move) == 0:
-                    return -1
-                return move
-            return -1
+        file_name = 'white_move.txt'
     else:
-        with open('black_move.txt') as file_student:
-            move_student = file_student.read().split('\n')
-            if len(move_student) == kol_move:
-                move = move_student[kol_move - 1]
-                if len(move) == 0:
-                    return -1
-                return move
+        file_name = 'black_move.txt'
+    with open(file_name, 'r', encoding='utf-8') as file_student:
+        text_info = file_student.readlines()
+        if text_info[3].strip().split(':')[1].strip() == '':
             return -1
+        else:
+            with open(file_name, 'w', encoding='utf-8') as file_student:
+                file_student.write(text_info[0])
+                file_student.write("Ход противника.\n")
+                file_student.write("Ход сделанный противником:\n")
+                file_student.write(text_info[3])
+            return text_info[3].strip().split(':')[1].strip()
 
 
 def broadcast_move(move, flag_move_player=None):
+    if flag_move_player == None:
+        with open('student_move.txt', 'r', encoding='utf-8') as file_student:
+            text_info = file_student.readlines()
+        with open('student_move.txt', 'w', encoding='utf-8') as file_student:
+            file_student.write(text_info[0])
+            file_student.write("Ваш ход.\n")
+            move_opponent = text_info[2].split(':')[0]
+            file_student.write(move_opponent + ':' + move + '\n')
+            file_student.write("Введите ваш ход:")
+        return
+
     if flag_move_player:
-        with open('white_move.txt', 'a', encoding='utf-8') as file_student:
-            file_student.write("\nХод противника: " + move)
-    elif flag_move_player == None:
-        with open('student_move.txt', 'a', encoding='utf-8') as file_student:
-            file_student.write("\nХод противника: " + move)
+        file_name = 'white_move.txt'
     else:
-        with open('black_move.txt', 'a', encoding='utf-8') as file_student:
-            file_student.write("\nХод противника: " + move)
+        file_name = 'black_move.txt'
+    with open(file_name, 'r', encoding='utf-8') as file_student:
+        text_info = file_student.readlines()
+    with open(file_name, 'w', encoding='utf-8') as file_student:
+        file_student.write(text_info[0])
+        file_student.write("Ваш ход.\n")
+        move_opponent = text_info[2].split(':')[0]
+        file_student.write(move_opponent + ':' + move + '\n')
+        file_student.write("Введите ваш ход:")
 
 
 def get_end_game(flag_move_player):
