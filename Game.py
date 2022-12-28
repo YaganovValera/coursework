@@ -120,6 +120,7 @@ class Chess_Board(QThread):
         global STATUS_game, USER_board, flag_move_player, Players, flag_draw_board, USER_move, flag_make_move
         try:
             while STATUS_game:
+                time.sleep(0.75)
                 if flag_draw_board:
                     if "Человек" in Players:
                         if Players[int(flag_move_player)] == "Человек":
@@ -128,17 +129,15 @@ class Chess_Board(QThread):
                                     self.move_for_info = USER_move
                                     self.computer_move = transition_board(USER_move)
                                     USER_board = get_cur_position()
-                                    flag_move_player = not flag_move_player
                                     flag_make_move = True
+                                    flag_move_player = not flag_move_player
                                     broadcast_move(self.move_for_info)
                                 USER_move = ''
                             else:
-                                time.sleep(1)
                                 continue
                         else:
                             student_move = get_student_move()
                             if student_move == -1:
-                                time.sleep(1)
                                 continue
                             if not self.check_student_move(student_move):
                                 self.correct_student_move = False
@@ -154,7 +153,6 @@ class Chess_Board(QThread):
                         else:
                             student_move = get_student_move()
                             if student_move == -1:
-                                time.sleep(1)
                                 continue
                             if not self.check_student_move(student_move):
                                 self.correct_student_move = False
@@ -162,7 +160,6 @@ class Chess_Board(QThread):
                     else:
                         student_move = student_play(flag_move_player)
                         if student_move == -1:
-                            time.sleep(1)
                             continue
                         if not self.check_student_move(student_move):
                             self.correct_student_move = False
@@ -178,13 +175,11 @@ class Chess_Board(QThread):
                         if board.is_insufficient_material():
                             self.end_game = 'Ничья из-за недостаточного материала.'
                             STATUS_game = False
-                        continue
                 else:
                     self.correct_student_move = True
                     self.move_for_info = ''
                     flag_draw_board = True
                     continue
-                time.sleep(1)
         except Exception as e:
             print(e)
 
@@ -228,7 +223,9 @@ class Personal_account(QMainWindow):
 
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(lambda: self.draw_player_timer(flag_move_player))
-        self.timer.timeout.connect(lambda: self.draw_move())
+
+        self.timer_draw_move = QtCore.QTimer()
+        self.timer_draw_move.timeout.connect(lambda: self.draw_move())
 
     def set_time(self, value):
         self.label_time.setText(str(value))
@@ -322,6 +319,7 @@ class Personal_account(QMainWindow):
                         file_student.write("Введите ваш ход:")
 
                 self.timer.start(1000)
+                self.timer_draw_move.start(500)
                 STATUS_game = True
                 self.start_time = int(self.label_time.text()) * 60
 
@@ -340,10 +338,12 @@ class Personal_account(QMainWindow):
 
     def draw_player_timer(self, timer_color):
         global STATUS_game, flag_make_move
-        if timer_color:
+        if timer_color and not flag_make_move:
             cur_timer = self.l_timer_white.text().split(':')
-        else:
+        elif not timer_color and not flag_make_move:
             cur_timer = self.l_timer_black.text().split(':')
+        else:
+            return
         if int(cur_timer[1]) == 0 and int(cur_timer[0]) != 0:
             cur_timer = [int(cur_timer[0])-1, 59]
         elif int(cur_timer[1]) != 0:
@@ -353,12 +353,16 @@ class Personal_account(QMainWindow):
                 STATUS_game = False
                 self.game_result.setText("Поражение белых, т.к закончилось время.")
                 flag_make_move = False
+                self.timer_draw_move.stop()
                 self.timer.stop()
+                self.game.exit()
             else:
                 STATUS_game = False
                 self.game_result.setText("Поражение черных, т.к закончилось время.")
                 flag_make_move = False
+                self.timer_draw_move.stop()
                 self.timer.stop()
+                self.game.exit()
         if timer_color:
             if cur_timer[1] < 10:
                 self.l_timer_white.setText(str(cur_timer[0])+":0"+str(cur_timer[1]))
@@ -426,7 +430,7 @@ class Personal_account(QMainWindow):
                                                        + ") Ход: " + self.game.move_for_info + " / Время на ход: "
                                                        + str(self.start_time-self.cur_time) + " сек;\n")
                     self.start_time = int(self.l_timer_black.text().split(":")[0])*60 + \
-                                      int(self.l_timer_black.text().split(":")[1]) + 1
+                                      int(self.l_timer_black.text().split(":")[1])
                     self.count_move_white += 1
                 else:
                     self.cur_time = int(self.l_timer_black.text().split(":")[0]) * 60 + \
@@ -435,13 +439,15 @@ class Personal_account(QMainWindow):
                                                        + ") Ход: " + self.game.move_for_info + " / Время на ход: "
                                                        + str(self.start_time-self.cur_time) + " сек;\n")
                     self.start_time = int(self.l_timer_white.text().split(":")[0]) * 60 + \
-                                      int(self.l_timer_white.text().split(":")[1]) + 1
+                                      int(self.l_timer_white.text().split(":")[1])
                     self.count_move_black += 1
+
                 if not STATUS_game:
                     if len(self.game.end_game) != 0:
                         self.game_result.setText(self.game.end_game)
+                        self.timer_draw_move.stop()
                         self.timer.stop()
-
+                        self.game.exit()
         except Exception as e:
             print(e)
 
@@ -468,6 +474,7 @@ class Personal_account(QMainWindow):
         self.count_move_black = 1
         self.l_timer_white.setText("10:00")
         self.l_timer_black.setText("10:00")
+        self.game_result.setText('')
         with open('student_move.txt', 'w', encoding='utf-8') as file_student:
             file_student.write('')
         with open('black_move.txt', 'w', encoding='utf-8') as file_student:
@@ -544,7 +551,7 @@ class Personal_account(QMainWindow):
     def exit(self):
         error = QMessageBox()
         error.setWindowTitle("Предупреждение\t\t\t\t\t")
-        error.setText("Вы уверены что хотите выйти из лчного кабинета?")
+        error.setText("Вы уверены что хотите выйти из личного кабинета?")
         error.setStandardButtons(QMessageBox.Ok|QMessageBox.Cancel)
         error.buttonClicked.connect(self.click_btn)
         error.exec_()
@@ -554,7 +561,9 @@ class Personal_account(QMainWindow):
             self.start_board()
             self.txt_start_board.setText('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w')
             self.horizontalSlider.setValue(10)
+            self.timer_draw_move.stop()
             self.timer.stop()
+            self.game.exit()
             widget.setFixedWidth(560)
             widget.setFixedHeight(350)
             widget.setCurrentWidget(login_window)
