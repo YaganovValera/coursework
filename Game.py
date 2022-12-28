@@ -115,8 +115,6 @@ class Chess_Board(QThread):
         self.computer_move = []
         self.correct_student_move = True
         self.end_game = []
-        self.time_to_move = 0
-        self.start_time = 0.0
 
     def run(self):
         global STATUS_game, USER_board, flag_move_player, Players, flag_draw_board, USER_move, flag_make_move
@@ -127,8 +125,6 @@ class Chess_Board(QThread):
                         if Players[int(flag_move_player)] == "Человек":
                             if len(USER_move) == 4:
                                 if check_correct_move(USER_move):
-                                    self.time_to_move = time.time() - float(self.start_time)
-                                    self.start_time = time.time()
                                     self.move_for_info = USER_move
                                     self.computer_move = transition_board(USER_move)
                                     USER_board = get_cur_position()
@@ -155,8 +151,6 @@ class Chess_Board(QThread):
                             broadcast_move(self.move_for_info)
                             flag_move_player = not flag_move_player
                             flag_make_move = True
-                            self.time_to_move = time.time() - float(self.start_time)
-                            self.start_time = time.time()
                         else:
                             student_move = get_student_move()
                             if student_move == -1:
@@ -186,7 +180,6 @@ class Chess_Board(QThread):
                             STATUS_game = False
                         continue
                 else:
-                    self.start_time = time.time()
                     self.correct_student_move = True
                     self.move_for_info = ''
                     flag_draw_board = True
@@ -203,9 +196,6 @@ class Chess_Board(QThread):
             USER_board = get_cur_position()
             flag_move_player = not flag_move_player
             flag_make_move = True
-            self.time_to_move = time.time() - float(self.start_time)
-            time.sleep(1)
-            self.start_time = time.time()
             return True
         else:
             self.move_for_info = student_move
@@ -223,6 +213,8 @@ class Personal_account(QMainWindow):
         self.player_color = ["черных", "белых"]
         self.count_move_white = 1
         self.count_move_black = 1
+        self.start_time = 0
+        self.cur_time = 0
 
         self.textEdit_player_white.setReadOnly(True)
         self.textEdit_player_black.setReadOnly(True)
@@ -235,6 +227,7 @@ class Personal_account(QMainWindow):
         self.horizontalSlider.valueChanged.connect(self.set_time)
 
         self.timer = QtCore.QTimer()
+        self.timer.timeout.connect(lambda: self.draw_player_timer(flag_move_player))
         self.timer.timeout.connect(lambda: self.draw_move())
 
     def set_time(self, value):
@@ -288,6 +281,8 @@ class Personal_account(QMainWindow):
     def settings_Game(self):
         global STATUS_game, USER_board, Players, flag_move_player, flag_draw_board
         self.restart_board()
+        self.l_timer_white.setText(self.label_time.text()+":00")
+        self.l_timer_black.setText(self.label_time.text()+":00")
         txt_user_board = self.txt_start_board.text().strip()
         if txt_user_board != '' and txt_user_board[-1] == 'w':
             flag_move_player = True
@@ -301,6 +296,8 @@ class Personal_account(QMainWindow):
                     with open('student_move.txt', 'w', encoding='utf8') as file_student:
                         file_student.write(self.txt_start_board.text().strip() + '\n')
                         if self.players[int(flag_move_player)] == 'Программа студента' and int(flag_move_player) == 0:
+                            file_student.write("Ваш ход.\n")
+                        elif self.players[int(flag_move_player)] == 'Программа студента' and int(flag_move_player) == 1:
                             file_student.write("Ваш ход.\n")
                         else:
                             file_student.write("Ход противника.\n")
@@ -326,17 +323,52 @@ class Personal_account(QMainWindow):
 
                 self.timer.start(1000)
                 STATUS_game = True
+                self.start_time = int(self.label_time.text()) * 60
+
                 USER_board = self.cur_board.board
                 Players = self.players
                 flag_draw_board = False
                 self.textEdit_player_black.setText('')
                 self.textEdit_player_white.setText('')
+
             else:
                 self.start_board()
                 self.error_user_board()
         else:
             self.start_board()
             self.error_user_board()
+
+    def draw_player_timer(self, timer_color):
+        global STATUS_game, flag_make_move
+        if timer_color:
+            cur_timer = self.l_timer_white.text().split(':')
+        else:
+            cur_timer = self.l_timer_black.text().split(':')
+        if int(cur_timer[1]) == 0 and int(cur_timer[0]) != 0:
+            cur_timer = [int(cur_timer[0])-1, 59]
+        elif int(cur_timer[1]) != 0:
+            cur_timer = [int(cur_timer[0]), int(cur_timer[1])-1]
+        if cur_timer[0] == 0 and cur_timer[1] == 0:
+            if timer_color:
+                STATUS_game = False
+                self.game_result.setText("Поражение белых, т.к закончилось время.")
+                flag_make_move = False
+                self.timer.stop()
+            else:
+                STATUS_game = False
+                self.game_result.setText("Поражение черных, т.к закончилось время.")
+                flag_make_move = False
+                self.timer.stop()
+        if timer_color:
+            if cur_timer[1] < 10:
+                self.l_timer_white.setText(str(cur_timer[0])+":0"+str(cur_timer[1]))
+            else:
+                self.l_timer_white.setText(str(cur_timer[0]) + ":" + str(cur_timer[1]))
+        else:
+            if cur_timer[1] < 10:
+                self.l_timer_black.setText(str(cur_timer[0]) + ":0" + str(cur_timer[1]))
+            else:
+                self.l_timer_black.setText(str(cur_timer[0]) + ":" + str(cur_timer[1]))
 
     def draw_move(self):
         global STATUS_game, USER_board, Players, flag_move_player, flag_draw_board, flag_make_move
@@ -387,17 +419,25 @@ class Personal_account(QMainWindow):
 
                 flag_make_move = False
                 if not flag_move_player:
-                    self.textEdit_player_white.setText(self.textEdit_player_white.toPlainText() + str(self.count_move_white)
+                    self.cur_time = int(self.l_timer_white.text().split(":")[0])*60 + \
+                                    int(self.l_timer_white.text().split(":")[1])
+                    self.textEdit_player_white.setText(self.textEdit_player_white.toPlainText()
+                                                       + str(self.count_move_white)
                                                        + ") Ход: " + self.game.move_for_info + " / Время на ход: "
-                                                       + str(int(self.game.time_to_move)) + " сек;\n")
+                                                       + str(self.start_time-self.cur_time) + " сек;\n")
+                    self.start_time = int(self.l_timer_black.text().split(":")[0])*60 + \
+                                      int(self.l_timer_black.text().split(":")[1]) + 1
                     self.count_move_white += 1
                 else:
+                    self.cur_time = int(self.l_timer_black.text().split(":")[0]) * 60 + \
+                                    int(self.l_timer_black.text().split(":")[1])
                     self.textEdit_player_black.setText(self.textEdit_player_black.toPlainText() + str(self.count_move_black)
                                                        + ") Ход: " + self.game.move_for_info + " / Время на ход: "
-                                                       + str(int(self.game.time_to_move)) + " сек;\n")
+                                                       + str(self.start_time-self.cur_time) + " сек;\n")
+                    self.start_time = int(self.l_timer_white.text().split(":")[0]) * 60 + \
+                                      int(self.l_timer_white.text().split(":")[1]) + 1
                     self.count_move_black += 1
                 if not STATUS_game:
-                    flag_make_move = False
                     if len(self.game.end_game) != 0:
                         self.game_result.setText(self.game.end_game)
                         self.timer.stop()
@@ -426,6 +466,8 @@ class Personal_account(QMainWindow):
         USER_move = ''
         self.count_move_white = 1
         self.count_move_black = 1
+        self.l_timer_white.setText("10:00")
+        self.l_timer_black.setText("10:00")
         with open('student_move.txt', 'w', encoding='utf-8') as file_student:
             file_student.write('')
         with open('black_move.txt', 'w', encoding='utf-8') as file_student:
@@ -511,6 +553,7 @@ class Personal_account(QMainWindow):
         if btn.text() == 'OK':
             self.start_board()
             self.txt_start_board.setText('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w')
+            self.horizontalSlider.setValue(10)
             self.timer.stop()
             widget.setFixedWidth(560)
             widget.setFixedHeight(350)

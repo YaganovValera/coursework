@@ -666,7 +666,7 @@ color: rgb(0, 0, 0);</string>
      <rect>
       <x>560</x>
       <y>430</y>
-      <width>281</width>
+      <width>331</width>
       <height>91</height>
      </rect>
     </property>
@@ -724,7 +724,7 @@ color: rgb(0, 0, 0);</string>
      <rect>
       <x>560</x>
       <y>570</y>
-      <width>281</width>
+      <width>331</width>
       <height>91</height>
      </rect>
     </property>
@@ -1006,6 +1006,82 @@ color: rgb(0, 0, 0);</string>
      <enum>Qt::Horizontal</enum>
     </property>
    </widget>
+   <widget class="QLabel" name="l_timer_white">
+    <property name="geometry">
+     <rect>
+      <x>490</x>
+      <y>50</y>
+      <width>51</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>16</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>10:00</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="l_timer_black">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>50</y>
+      <width>51</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>16</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>10:00</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_24">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>50</y>
+      <width>131</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>14</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Время черных:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_26">
+    <property name="geometry">
+     <rect>
+      <x>360</x>
+      <y>50</y>
+      <width>131</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>14</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Время белых:</string>
+    </property>
+   </widget>
    <zorder>textBrowser_board</zorder>
    <zorder>label_4</zorder>
    <zorder>label_5</zorder>
@@ -1042,6 +1118,10 @@ color: rgb(0, 0, 0);</string>
    <zorder>label_time</zorder>
    <zorder>label_25</zorder>
    <zorder>horizontalSlider</zorder>
+   <zorder>l_timer_white</zorder>
+   <zorder>label_24</zorder>
+   <zorder>l_timer_black</zorder>
+   <zorder>label_26</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
