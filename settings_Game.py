@@ -8,29 +8,24 @@ stockfish = Stockfish("stockfish_15_win_x64_avx2/stockfish_15_x64_avx2.exe")
 column = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
 
 
-class startBoard:
-    def __init__(self):
-        self.board = [
-            ["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
-            ["bp", "bp", "bp", "bp", "bp", "bp", "bp", "bp"],
-            ["--", "--", "--", "--", "--", "--", "--", "--"],
-            ["--", "--", "--", "--", "--", "--", "--", "--"],
-            ["--", "--", "--", "--", "--", "--", "--", "--"],
-            ["--", "--", "--", "--", "--", "--", "--", "--"],
-            ["wp", "wp", "wp", "wp", "wp", "wp", "wp", "wp"],
-            ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]
-        ]
+base_board = [
+    ["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
+    ["bp", "bp", "bp", "bp", "bp", "bp", "bp", "bp"],
+    ["--", "--", "--", "--", "--", "--", "--", "--"],
+    ["--", "--", "--", "--", "--", "--", "--", "--"],
+    ["--", "--", "--", "--", "--", "--", "--", "--"],
+    ["--", "--", "--", "--", "--", "--", "--", "--"],
+    ["wp", "wp", "wp", "wp", "wp", "wp", "wp", "wp"],
+    ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]
+]
 
 
-def checking_cur_board(board=None):
-    if board!=None:
-        if stockfish.is_fen_valid(board):
-            stockfish.set_fen_position(board)
-            return True
-        else:
-            return False
-    cur_position = stockfish.get_fen_position()
-    return stockfish.is_fen_valid(cur_position)
+def checking_cur_board(board):
+    if stockfish.is_fen_valid(board):
+        stockfish.set_fen_position(board)
+        return True
+    else:
+        return False
 
 
 def make_matrix_board(board):
@@ -51,6 +46,7 @@ def make_matrix_board(board):
     return end_board
 
 
+# Преобразование хода по FEN в координаты матрицы
 def transition_board(fen_move):
     norm_move = [1, 2, 3, 4]
     for item in range(len(fen_move)):
@@ -73,6 +69,12 @@ def get_computer_move():
     return move_for_info, computer_move
 
 
+def check_pawn_transformations(move):
+    if stockfish.is_move_correct(move):
+        return True
+    return False
+
+
 def check_correct_move(move):
     if stockfish.is_move_correct(move):
         stockfish.make_moves_from_current_position([move])
@@ -86,48 +88,32 @@ def get_cur_position():
     return cur_position
 
 
-def get_student_move():                         # режимы компьютер-программа, человек-программа
-    with open('student_move.txt', 'r', encoding='utf-8') as file_student:
-        text_info = file_student.readlines()
-        if len(text_info) < 3:
-            return -1
-        else:
-            with open('student_move.txt', 'w', encoding='utf-8') as file_student:
-                cur_board = stockfish.get_fen_position().split(' ')
-                file_student.write(cur_board[0] + " " + cur_board[1] + "\n")
-                file_student.write("0\n")
-            return text_info[2].strip()
-
-
-def student_play(flag_move_player):
+def get_student_move(flag_move_player=None):
     if flag_move_player:
         file_name = 'white_move.txt'
-    else:
+    elif flag_move_player == False:
         file_name = 'black_move.txt'
+    else:
+        file_name = 'student_move.txt'
     with open(file_name, 'r', encoding='utf-8') as file_student:
         text_info = file_student.readlines()
-        if len(text_info) < 3:
+        if len(text_info) < 3 or (len(text_info) > 2 and text_info[2].strip() == ""):
             return -1
-        else:
-            with open(file_name, 'w', encoding='utf-8') as file_student:
-                cur_board = stockfish.get_fen_position().split(' ')
-                file_student.write(cur_board[0] + " " + cur_board[1] + "\n")
-                file_student.write("0\n")
-            return text_info[2].strip()
+    with open(file_name, 'w', encoding='utf-8') as file_student:
+        cur_board = stockfish.get_fen_position().split(' ')
+        file_student.write(cur_board[0] + " " + cur_board[1] + "\n")
+        file_student.write("0\n")
+
+    return text_info[2].strip()
 
 
 def broadcast_move(flag_move_player=None):
-    if flag_move_player == None:
-        with open('student_move.txt', 'w', encoding='utf-8') as file_student:
-            cur_board = stockfish.get_fen_position().split(' ')
-            file_student.write(cur_board[0] + " " + cur_board[1] + "\n")
-            file_student.write("1\n")
-        return
-
     if flag_move_player:
         file_name = 'white_move.txt'
-    else:
+    elif flag_move_player == False:
         file_name = 'black_move.txt'
+    else:
+        file_name = 'student_move.txt'
     with open(file_name, 'w', encoding='utf-8') as file_student:
         cur_board = stockfish.get_fen_position().split(' ')
         file_student.write(cur_board[0]+" "+cur_board[1] + "\n")
