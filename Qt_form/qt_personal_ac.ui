@@ -932,7 +932,7 @@ color: rgb(0, 0, 0);</string>
      <rect>
       <x>550</x>
       <y>300</y>
-      <width>131</width>
+      <width>221</width>
       <height>21</height>
      </rect>
     </property>
@@ -943,13 +943,13 @@ color: rgb(0, 0, 0);</string>
      </font>
     </property>
     <property name="text">
-     <string>Время на матч:</string>
+     <string>Лимит времени игрока:</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_time">
     <property name="geometry">
      <rect>
-      <x>680</x>
+      <x>740</x>
       <y>300</y>
       <width>21</width>
       <height>21</height>
@@ -968,7 +968,7 @@ color: rgb(0, 0, 0);</string>
    <widget class="QLabel" name="label_25">
     <property name="geometry">
      <rect>
-      <x>700</x>
+      <x>760</x>
       <y>300</y>
       <width>41</width>
       <height>21</height>
