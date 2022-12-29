@@ -38,8 +38,7 @@ class Login(QMainWindow):
         global username
         username = self.line_username.text().strip()
         password = self.line_password.text().strip()
-        if True:
-        # if check_login(username, password, 'Вход'):
+        if check_login(username, password, 'Вход'):
             self.line_username.setText('')
             self.line_password.setText('')
             widget.setFixedWidth(900)
