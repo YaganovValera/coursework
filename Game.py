@@ -176,6 +176,7 @@ class Chess_Board(QThread):
                         if board.is_insufficient_material():
                             self.end_game = 'Ничья из-за недостаточного материала.'
                             STATUS_game = False
+                            self.clear_file()
                 else:
                     self.correct_student_move = True
                     self.move_for_info = ''
@@ -204,6 +205,9 @@ class Personal_account(QMainWindow):
     def __init__(self):
         super(Personal_account, self).__init__()
         loadUi("Qt_form/qt_personal_ac.ui", self)
+        self.timer = QtCore.QTimer()
+        self.timer.timeout.connect(lambda: self.draw_player_timer(flag_move_player))
+
         self.start_board()
         self.game = Chess_Board()
         self.player_color = ["черных", "белых"]
@@ -224,9 +228,6 @@ class Personal_account(QMainWindow):
         self.table_chess_board.cellDoubleClicked.connect(self.cell_doubleclick)
         self.horizontalSlider.valueChanged.connect(self.set_time)
 
-        self.timer = QtCore.QTimer()
-        self.timer.timeout.connect(lambda: self.draw_player_timer(flag_move_player))
-
         self.timer_draw_move = QtCore.QTimer()
         self.timer_draw_move.timeout.connect(lambda: self.draw_move())
 
@@ -235,7 +236,6 @@ class Personal_account(QMainWindow):
 
     def start_board(self):
         self.restart_board()
-        self.game_result.setText('')
         self.textEdit_player_black.setText('')
         self.textEdit_player_white.setText('')
         self.cur_board = startBoard()
@@ -379,6 +379,7 @@ class Personal_account(QMainWindow):
                 self.timer.stop()
                 self.game.exit()
                 STATUS_game = False
+                self.clear_file()
                 self.error_student()
                 self.game.correct_student_move = True
 
@@ -450,6 +451,7 @@ class Personal_account(QMainWindow):
                         self.timer_draw_move.stop()
                         self.timer.stop()
                         self.game.exit()
+                        self.clear_file()
         except Exception as e:
             print(e)
 
@@ -472,6 +474,8 @@ class Personal_account(QMainWindow):
         flag_make_move = False
         USER_board = []
         USER_move = ''
+        self.timer.start(2000)
+        self.timer.stop()
         self.count_move_white = 1
         self.count_move_black = 1
         self.flag_black_p = False
@@ -479,6 +483,9 @@ class Personal_account(QMainWindow):
         self.l_timer_white.setText("10:00")
         self.l_timer_black.setText("10:00")
         self.game_result.setText('')
+        self.clear_file()
+
+    def clear_file(self):
         with open('student_move.txt', 'w', encoding='utf-8') as file_student:
             file_student.write('')
         with open('black_move.txt', 'w', encoding='utf-8') as file_student:
@@ -582,7 +589,7 @@ class Personal_account(QMainWindow):
         error.setText("Введены неверный данные!")
         error.setIcon(QMessageBox.Warning)
         error.setStandardButtons(QMessageBox.Ok)
-        error.setDetailedText("Данные должны быть представлены по стандарту FEN.\n"
+        error.setDetailedText("Данные должны быть представлены по стандарту FEN.(А именно должна быть стартовая расстановка и цвет игрока, который начинает игру)\n"
                               "Пример начальной расстановки: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w.\n"
                               "\n"
                               "В игре отсутствуют следующие режимы: Человек/Человек; Компьютер/Человек; Компьютер/Компьютер.")
