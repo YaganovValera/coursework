@@ -132,7 +132,7 @@ class Chess_Board(QThread):
                                     USER_board = get_cur_position()
                                     flag_make_move = True
                                     flag_move_player = not flag_move_player
-                                    broadcast_move(self.move_for_info)
+                                    broadcast_move()
                                 USER_move = ''
                                 flag_pawn_replacement = False
                             else:
@@ -149,7 +149,7 @@ class Chess_Board(QThread):
                         if Players[int(flag_move_player)] == "Компьютер":
                             self.move_for_info, self.computer_move = get_computer_move()
                             USER_board = get_cur_position()
-                            broadcast_move(self.move_for_info)
+                            broadcast_move()
                             flag_move_player = not flag_move_player
                             flag_make_move = True
                         else:
@@ -167,7 +167,7 @@ class Chess_Board(QThread):
                             self.correct_student_move = False
                             break
                         else:
-                            broadcast_move(self.move_for_info, flag_move_player)
+                            broadcast_move(flag_move_player)
 
                     STATUS_game = checking_cur_board()
                     if not STATUS_game:
@@ -297,30 +297,24 @@ class Personal_account(QMainWindow):
                     with open('student_move.txt', 'w', encoding='utf8') as file_student:
                         file_student.write(self.txt_start_board.text().strip() + '\n')
                         if self.players[int(flag_move_player)] == 'Программа студента' and int(flag_move_player) == 0:
-                            file_student.write("Ваш ход.\n")
+                            file_student.write("1\n")
                         elif self.players[int(flag_move_player)] == 'Программа студента' and int(flag_move_player) == 1:
-                            file_student.write("Ваш ход.\n")
+                            file_student.write("1\n")
                         else:
-                            file_student.write("Ход противника.\n")
-                        file_student.write("Ход сделанный противником:\n")
-                        file_student.write("Введите ваш ход:")
+                            file_student.write("0\n")
                 else:
                     with open('white_move.txt', 'w', encoding='utf8') as file_student:
                         file_student.write(self.txt_start_board.text().strip()+'\n')
                         if int(flag_move_player) == 1:
-                            file_student.write("Ваш ход.\n")
+                            file_student.write("1\n")
                         else:
-                            file_student.write("Ход противника.\n")
-                        file_student.write("Ход сделанный противником:\n")
-                        file_student.write("Введите ваш ход:")
+                            file_student.write("0\n")
                     with open('black_move.txt', 'w', encoding='utf8') as file_student:
                         file_student.write(self.txt_start_board.text().strip() + '\n')
                         if int(flag_move_player) == 0:
-                            file_student.write("Ваш ход.\n")
+                            file_student.write("1\n")
                         else:
-                            file_student.write("Ход противника.\n")
-                        file_student.write("Ход сделанный противником:\n")
-                        file_student.write("Введите ваш ход:")
+                            file_student.write("0\n")
 
                 self.timer.start(1000)
                 self.timer_draw_move.start(500)
@@ -382,9 +376,14 @@ class Personal_account(QMainWindow):
         global STATUS_game, USER_board, Players, flag_move_player, flag_draw_board, flag_make_move
         try:
             if not self.game.correct_student_move:
+                self.timer_draw_move.stop()
+                self.timer.stop()
+                self.game.exit()
+                STATUS_game = False
                 self.error_student()
                 self.game.correct_student_move = True
-            if flag_make_move:
+
+            elif flag_make_move:
                 for cell in range(0, len(self.game.computer_move), 2):
                     item = QtWidgets.QTableWidgetItem()
                     x = int(self.game.computer_move[cell])
