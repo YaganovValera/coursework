@@ -18,6 +18,7 @@ CELL_selection = []             # Для подсветки выброной ф�
 flag_draw_board = False         # Начальная отрисовка пользовательской доски
 flag_move_player = False        # Смена хода (False - ход черных, True - ход белых)
 flag_make_move = False          # Сделан ход (False - нет, True - да)
+flag_pawn_replacement = False   # Для события когда пешка доходит доконца
 
 USER_board = []                 # Доска пользователя в матричном виде
 USER_move = ''                  # Ход человека
@@ -117,22 +118,23 @@ class Chess_Board(QThread):
         self.end_game = []
 
     def run(self):
-        global STATUS_game, USER_board, flag_move_player, Players, flag_draw_board, USER_move, flag_make_move
+        global STATUS_game, USER_board, flag_move_player, Players, flag_draw_board, USER_move, flag_make_move, flag_pawn_replacement
         try:
             while STATUS_game:
                 time.sleep(0.75)
                 if flag_draw_board:
                     if "Человек" in Players:
                         if Players[int(flag_move_player)] == "Человек":
-                            if len(USER_move) == 4:
+                            if len(USER_move) >= 4 and flag_pawn_replacement:
                                 if check_correct_move(USER_move):
                                     self.move_for_info = USER_move
-                                    self.computer_move = transition_board(USER_move)
+                                    self.computer_move = transition_board(USER_move[0:4])
                                     USER_board = get_cur_position()
                                     flag_make_move = True
                                     flag_move_player = not flag_move_player
                                     broadcast_move(self.move_for_info)
                                 USER_move = ''
+                                flag_pawn_replacement = False
                             else:
                                 continue
                         else:
@@ -187,7 +189,7 @@ class Chess_Board(QThread):
         global flag_make_move, flag_move_player, USER_board, STATUS_game
         if check_correct_move(student_move):
             self.move_for_info = student_move
-            self.computer_move = transition_board(student_move)
+            self.computer_move = transition_board(student_move[0:4])
             USER_board = get_cur_position()
             flag_move_player = not flag_move_player
             flag_make_move = True
@@ -210,6 +212,8 @@ class Personal_account(QMainWindow):
         self.count_move_black = 1
         self.start_time = 0
         self.cur_time = 0
+        self.flag_white_p = False
+        self.flag_black_p = False
 
         self.textEdit_player_white.setReadOnly(True)
         self.textEdit_player_black.setReadOnly(True)
@@ -472,6 +476,8 @@ class Personal_account(QMainWindow):
         USER_move = ''
         self.count_move_white = 1
         self.count_move_black = 1
+        self.flag_black_p = False
+        self.flag_white_p = False
         self.l_timer_white.setText("10:00")
         self.l_timer_black.setText("10:00")
         self.game_result.setText('')
@@ -483,7 +489,7 @@ class Personal_account(QMainWindow):
             file_student.write('')
 
     def cell_click(self, row, col):
-        global USER_move, flag_move_player, Players, USER_board, USER_move, STATUS_game, CELL_selection
+        global USER_move, flag_move_player, Players, USER_board, USER_move, STATUS_game, CELL_selection, flag_pawn_replacement
         if STATUS_game and Players[flag_move_player] == "Человек":
             letter = getting_col(col)
             digit = str(8 - row)
@@ -492,9 +498,38 @@ class Personal_account(QMainWindow):
                 CELL_selection = [row, col]
                 self.cell_selected(CELL_selection, True)
                 USER_move += move
+                if USER_board[row][col] == "wp" and row == 1:
+                    self.flag_white_p = True
+                elif USER_board[row][col] == "bp" and row == 6:
+                    self.flag_black_p = True
+                else:
+                    self.flag_white_p = False
+                    self.flag_black_p = False
             elif len(USER_move) == 2:
-                self.cell_selected(CELL_selection, False)
                 USER_move += move
+                self.cell_selected(CELL_selection, False)
+                if self.flag_black_p and row == 7:
+                    self.choos_figure()
+                elif self.flag_white_p and row == 0:
+                    self.choos_figure()
+                flag_pawn_replacement = True
+                self.flag_white_p = False
+                self.flag_black_p = False
+
+    def choos_figure(self):
+        error = QMessageBox()
+        error.setWindowTitle("Выбор фигуры.\t\t\t\t\t")
+        error.setText("Если вы хотите выбрать Ферзя, то нажмите Ok. Если вы нажмете кнопку No, то замените пешку на коня.")
+        error.setStandardButtons(QMessageBox.Ok | QMessageBox.No )
+        error.buttonClicked.connect(self.info_btn)
+        error.exec_()
+
+    def info_btn(self, btn):
+        global USER_move
+        if btn.text() == 'OK':
+            USER_move += 'q'
+        else:
+            USER_move += 'n'
 
     def cell_doubleclick(self, row, col):
         try:
@@ -508,6 +543,13 @@ class Personal_account(QMainWindow):
                     CELL_selection = [row, col]
                     self.cell_selected(CELL_selection, True)
                     USER_move = move
+                    if USER_board[row][col] == "wp" and row == 1:
+                        self.flag_white_p = True
+                    elif USER_board[row][col] == "bp" and row == 6:
+                        self.flag_black_p = True
+                    else:
+                        self.flag_white_p = False
+                        self.flag_black_p = False
                 else:
                     USER_move = ''
         except Exception as e:
@@ -567,7 +609,6 @@ class Personal_account(QMainWindow):
             widget.setFixedWidth(560)
             widget.setFixedHeight(350)
             widget.setCurrentWidget(login_window)
-
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
