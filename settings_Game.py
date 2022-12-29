@@ -68,7 +68,8 @@ def getting_col(digit):
 def get_computer_move():
     move_for_info = stockfish.get_best_move_time(2000)
     stockfish.make_moves_from_current_position([move_for_info])
-    computer_move = transition_board(move_for_info)
+    computer_move = move_for_info[0:4]
+    computer_move = transition_board(computer_move)
     return move_for_info, computer_move
 
 
@@ -92,7 +93,8 @@ def get_student_move():                         # режимы компьюте�
             return -1
         else:
             with open('student_move.txt', 'w', encoding='utf-8') as file_student:
-                file_student.write(text_info[0])
+                cur_board = stockfish.get_fen_position().split(' ')
+                file_student.write(cur_board[0] + " " + cur_board[1] + "\n")
                 file_student.write("Ход противника.\n")
                 file_student.write("Ход сделанный противником:\n")
                 file_student.write(text_info[3])
@@ -110,7 +112,8 @@ def student_play(flag_move_player):
             return -1
         else:
             with open(file_name, 'w', encoding='utf-8') as file_student:
-                file_student.write(text_info[0])
+                cur_board = stockfish.get_fen_position().split(' ')
+                file_student.write(cur_board[0] + " " + cur_board[1] + "\n")
                 file_student.write("Ход противника.\n")
                 file_student.write("Ход сделанный противником:\n")
                 file_student.write(text_info[3])
@@ -122,7 +125,8 @@ def broadcast_move(move, flag_move_player=None):
         with open('student_move.txt', 'r', encoding='utf-8') as file_student:
             text_info = file_student.readlines()
         with open('student_move.txt', 'w', encoding='utf-8') as file_student:
-            file_student.write(text_info[0])
+            cur_board = stockfish.get_fen_position().split(' ')
+            file_student.write(cur_board[0] + " " + cur_board[1] + "\n")
             file_student.write("Ваш ход.\n")
             move_opponent = text_info[2].split(':')[0]
             file_student.write(move_opponent + ':' + move + '\n')
@@ -136,7 +140,8 @@ def broadcast_move(move, flag_move_player=None):
     with open(file_name, 'r', encoding='utf-8') as file_student:
         text_info = file_student.readlines()
     with open(file_name, 'w', encoding='utf-8') as file_student:
-        file_student.write(text_info[0])
+        cur_board = stockfish.get_fen_position().split(' ')
+        file_student.write(cur_board[0]+" "+cur_board[1] + "\n")
         file_student.write("Ваш ход.\n")
         move_opponent = text_info[2].split(':')[0]
         file_student.write(move_opponent + ':' + move + '\n')
