@@ -89,16 +89,14 @@ def get_cur_position():
 def get_student_move():                         # режимы компьютер-программа, человек-программа
     with open('student_move.txt', 'r', encoding='utf-8') as file_student:
         text_info = file_student.readlines()
-        if text_info[3].strip().split(':')[1].strip() == '':
+        if len(text_info) < 3:
             return -1
         else:
             with open('student_move.txt', 'w', encoding='utf-8') as file_student:
                 cur_board = stockfish.get_fen_position().split(' ')
                 file_student.write(cur_board[0] + " " + cur_board[1] + "\n")
-                file_student.write("Ход противника.\n")
-                file_student.write("Ход сделанный противником:\n")
-                file_student.write(text_info[3])
-            return text_info[3].strip().split(':')[1].strip()
+                file_student.write("0\n")
+            return text_info[2].strip()
 
 
 def student_play(flag_move_player):
@@ -108,44 +106,32 @@ def student_play(flag_move_player):
         file_name = 'black_move.txt'
     with open(file_name, 'r', encoding='utf-8') as file_student:
         text_info = file_student.readlines()
-        if text_info[3].strip().split(':')[1].strip() == '':
+        if len(text_info) < 3:
             return -1
         else:
             with open(file_name, 'w', encoding='utf-8') as file_student:
                 cur_board = stockfish.get_fen_position().split(' ')
                 file_student.write(cur_board[0] + " " + cur_board[1] + "\n")
-                file_student.write("Ход противника.\n")
-                file_student.write("Ход сделанный противником:\n")
-                file_student.write(text_info[3])
-            return text_info[3].strip().split(':')[1].strip()
+                file_student.write("0\n")
+            return text_info[2].strip()
 
 
-def broadcast_move(move, flag_move_player=None):
+def broadcast_move(flag_move_player=None):
     if flag_move_player == None:
-        with open('student_move.txt', 'r', encoding='utf-8') as file_student:
-            text_info = file_student.readlines()
         with open('student_move.txt', 'w', encoding='utf-8') as file_student:
             cur_board = stockfish.get_fen_position().split(' ')
             file_student.write(cur_board[0] + " " + cur_board[1] + "\n")
-            file_student.write("Ваш ход.\n")
-            move_opponent = text_info[2].split(':')[0]
-            file_student.write(move_opponent + ':' + move + '\n')
-            file_student.write("Введите ваш ход:")
+            file_student.write("1\n")
         return
 
     if flag_move_player:
         file_name = 'white_move.txt'
     else:
         file_name = 'black_move.txt'
-    with open(file_name, 'r', encoding='utf-8') as file_student:
-        text_info = file_student.readlines()
     with open(file_name, 'w', encoding='utf-8') as file_student:
         cur_board = stockfish.get_fen_position().split(' ')
         file_student.write(cur_board[0]+" "+cur_board[1] + "\n")
-        file_student.write("Ваш ход.\n")
-        move_opponent = text_info[2].split(':')[0]
-        file_student.write(move_opponent + ':' + move + '\n')
-        file_student.write("Введите ваш ход:")
+        file_student.write("1\n")
 
 
 def get_end_game(flag_move_player):
