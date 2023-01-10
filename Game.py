@@ -152,7 +152,7 @@ class Chess_Board(QThread):
                             flag_make_move = True
                         else:
                             student_move = get_student_move()
-                            if student_move == "skip":
+                            if student_move == -1:
                                 continue
 
                             if not self.check_student_move(student_move):
