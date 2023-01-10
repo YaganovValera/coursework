@@ -1,5 +1,3 @@
-import subprocess
-from _winapi import CREATE_NO_WINDOW
 
 import chess
 from models import Stockfish
