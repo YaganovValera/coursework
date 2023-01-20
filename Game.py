@@ -119,7 +119,7 @@ class Chess_Board(QThread):
         global STATUS_game, USER_board, flag_move_player, Players, flag_draw_board, USER_move, flag_make_move, flag_pawn_replacement
         try:
             while STATUS_game:
-                time.sleep(0.75)
+                time.sleep(0.4)
                 if flag_draw_board:
                     if "Человек" in Players:
                         if Players[int(flag_move_player)] == "Человек":
