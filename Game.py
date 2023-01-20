@@ -453,6 +453,7 @@ class Personal_account(QMainWindow):
                     self.start_time = int(self.l_timer_white.text().split(":")[0]) * 60 + \
                                       int(self.l_timer_white.text().split(":")[1])
                     self.count_move_black += 1
+
                 flag_make_move = False
                 if not STATUS_game:
                     if len(self.game.end_game) != 0:
