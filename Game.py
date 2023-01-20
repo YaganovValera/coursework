@@ -128,7 +128,6 @@ class Chess_Board(QThread):
                                     self.move_for_info = USER_move
                                     self.digit_move = transition_board(USER_move[0:4])
                                     USER_board = get_cur_position()
-                                    flag_make_move = True
                                     flag_move_player = not flag_move_player
                                     broadcast_move()
                                 USER_move = ''
@@ -149,7 +148,6 @@ class Chess_Board(QThread):
                             USER_board = get_cur_position()
                             broadcast_move()
                             flag_move_player = not flag_move_player
-                            flag_make_move = True
                         else:
                             student_move = get_student_move()
                             if student_move == -1:
@@ -176,6 +174,8 @@ class Chess_Board(QThread):
                         if board.is_insufficient_material():
                             self.end_game = 'Ничья из-за недостаточного материала.'
                             STATUS_game = False
+                        else:
+                            flag_make_move = True
                 else:
                     self.correct_student_move = True
                     self.move_for_info = ''
@@ -184,13 +184,12 @@ class Chess_Board(QThread):
             print(e)
 
     def check_student_move(self, student_move):
-        global flag_make_move, flag_move_player, USER_board, STATUS_game
+        global flag_move_player, USER_board, STATUS_game
         if check_correct_move(student_move):
             self.move_for_info = student_move
             self.digit_move = transition_board(student_move[0:4])
             USER_board = get_cur_position()
             flag_move_player = not flag_move_player
-            flag_make_move = True
             return True
         else:
             self.move_for_info = student_move
