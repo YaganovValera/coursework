@@ -454,11 +454,10 @@ class Personal_account(QMainWindow):
                                       int(self.l_timer_white.text().split(":")[1])
                     self.count_move_black += 1
 
+                if len(self.game.end_game) != 0:
+                    self.game_result.setText(self.game.end_game)
+                    self.stop_timers_and_game()
                 flag_make_move = False
-                if not STATUS_game:
-                    if len(self.game.end_game) != 0:
-                        self.game_result.setText(self.game.end_game)
-                        self.stop_timers_and_game()
         except Exception as e:
             print(e)
 
