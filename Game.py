@@ -168,13 +168,9 @@ class Chess_Board(QThread):
                             broadcast_move(flag_move_player)
 
                     STATUS_game = checking_cur_board(stockfish.get_fen_position())
-                    if not STATUS_game:
-                        self.end_game = get_end_game(flag_move_player)
-                    else:
-                        board = chess.Board(stockfish.get_fen_position())
-                        if board.is_insufficient_material():
-                            self.end_game = 'Ничья из-за недостаточного материала.'
-                            STATUS_game = False
+                    board = chess.Board(stockfish.get_fen_position())
+                    if board.is_insufficient_material():
+                        STATUS_game = False
                 else:
                     self.correct_student_move = True
                     self.move_for_info = ''
@@ -454,10 +450,20 @@ class Personal_account(QMainWindow):
                                       int(self.l_timer_white.text().split(":")[1])
                     self.count_move_black += 1
 
+                STATUS_game = checking_cur_board(stockfish.get_fen_position())
+                if not STATUS_game:
+                    self.game.end_game = get_end_game(flag_move_player)
+                else:
+                    board = chess.Board(stockfish.get_fen_position())
+                    if board.is_insufficient_material():
+                        self.game.end_game = 'Ничья из-за недостаточного материала.'
+                        STATUS_game = False7
+
                 if len(self.game.end_game) != 0:
                     self.game_result.setText(self.game.end_game)
                     self.stop_timers_and_game()
                 flag_make_move = False
+
         except Exception as e:
             print(e)
 
