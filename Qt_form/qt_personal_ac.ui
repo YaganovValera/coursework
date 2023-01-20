@@ -680,6 +680,9 @@ color: rgb(0, 0, 0);</string>
      <string notr="true">background-color: rgb(255, 255, 255);
 color: rgb(0, 0, 0);</string>
     </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
    </widget>
    <widget class="QLabel" name="label_20">
     <property name="geometry">
@@ -737,6 +740,9 @@ color: rgb(0, 0, 0);</string>
     <property name="styleSheet">
      <string notr="true">background-color: rgb(255, 255, 255);
 color: rgb(0, 0, 0);</string>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
     </property>
    </widget>
    <widget class="QTableWidget" name="table_chess_board">
