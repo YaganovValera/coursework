@@ -121,62 +121,61 @@ class Chess_Board(QThread):
             while STATUS_game:
                 time.sleep(0.75)
                 if flag_draw_board:
-                    if not flag_make_move:
-                        if "Человек" in Players:
-                            if Players[int(flag_move_player)] == "Человек":
-                                if len(USER_move) >= 4 and flag_pawn_replacement:
-                                    if check_correct_move(USER_move):
-                                        self.move_for_info = USER_move
-                                        self.digit_move = transition_board(USER_move[0:4])
-                                        USER_board = get_cur_position()
-                                        flag_move_player = not flag_move_player
-                                        flag_make_move = True
-                                        broadcast_move()
-                                    USER_move = ''
-                                    flag_pawn_replacement = False
-                                else:
-                                    continue
+                    if "Человек" in Players:
+                        if Players[int(flag_move_player)] == "Человек":
+                            if len(USER_move) >= 4 and flag_pawn_replacement:
+                                if check_correct_move(USER_move):
+                                    self.move_for_info = USER_move
+                                    self.digit_move = transition_board(USER_move[0:4])
+                                    USER_board = get_cur_position()
+                                    flag_move_player = not flag_move_player
+                                    flag_make_move = True
+                                    broadcast_move()
+                                USER_move = ''
+                                flag_pawn_replacement = False
                             else:
-                                student_move = get_student_move()
-                                if student_move == -1:
-                                    continue
-                                if not self.check_student_move(student_move):
-                                    self.correct_student_move = False
-                                    break
-
-                        elif "Компьютер" in Players:
-                            if Players[int(flag_move_player)] == "Компьютер":
-                                self.move_for_info, self.digit_move = get_computer_move()
-                                USER_board = get_cur_position()
-                                broadcast_move()
-                                flag_move_player = not flag_move_player
-                                flag_make_move = True
-                            else:
-                                student_move = get_student_move()
-                                if student_move == -1:
-                                    continue
-
-                                if not self.check_student_move(student_move):
-                                    self.correct_student_move = False
-                                    break
+                                continue
                         else:
-                            student_move = get_student_move(flag_move_player)
+                            student_move = get_student_move()
                             if student_move == -1:
                                 continue
                             if not self.check_student_move(student_move):
                                 self.correct_student_move = False
                                 break
-                            else:
-                                broadcast_move(flag_move_player)
 
-                        STATUS_game = checking_cur_board(stockfish.get_fen_position())
-                        if not STATUS_game:
-                            self.end_game = get_end_game(flag_move_player)
+                    elif "Компьютер" in Players:
+                        if Players[int(flag_move_player)] == "Компьютер":
+                            self.move_for_info, self.digit_move = get_computer_move()
+                            USER_board = get_cur_position()
+                            flag_move_player = not flag_move_player
+                            flag_make_move = True
+                            broadcast_move()
                         else:
-                            board = chess.Board(stockfish.get_fen_position())
-                            if board.is_insufficient_material():
-                                self.end_game = 'Ничья из-за недостаточного материала.'
-                                STATUS_game = False
+                            student_move = get_student_move()
+                            if student_move == -1:
+                                continue
+
+                            if not self.check_student_move(student_move):
+                                self.correct_student_move = False
+                                break
+                    else:
+                        student_move = get_student_move(flag_move_player)
+                        if student_move == -1:
+                            continue
+                        if not self.check_student_move(student_move):
+                            self.correct_student_move = False
+                            break
+                        else:
+                            broadcast_move(flag_move_player)
+
+                    STATUS_game = checking_cur_board(stockfish.get_fen_position())
+                    if not STATUS_game:
+                        self.end_game = get_end_game(flag_move_player)
+                    else:
+                        board = chess.Board(stockfish.get_fen_position())
+                        if board.is_insufficient_material():
+                            self.end_game = 'Ничья из-за недостаточного материала.'
+                            STATUS_game = False
                 else:
                     self.correct_student_move = True
                     self.move_for_info = ''
