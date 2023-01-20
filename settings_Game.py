@@ -60,7 +60,7 @@ def getting_col(digit):
 
 
 def get_computer_move():
-    move_for_info = stockfish.get_best_move_time(1243)
+    move_for_info = stockfish.get_best_move_time(2003)
     stockfish.make_moves_from_current_position([move_for_info])
     computer_move = move_for_info[0:4]
     computer_move = transition_board(computer_move)
