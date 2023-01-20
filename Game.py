@@ -179,6 +179,7 @@ class Chess_Board(QThread):
                 else:
                     self.correct_student_move = True
                     self.move_for_info = ''
+                    self.end_game = []
                     flag_draw_board = True
         except Exception as e:
             print(e)
