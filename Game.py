@@ -154,7 +154,6 @@ class Chess_Board(QThread):
                             student_move = get_student_move()
                             if student_move == -1:
                                 continue
-
                             if not self.check_student_move(student_move):
                                 self.correct_student_move = False
                                 break
@@ -455,7 +454,10 @@ class Personal_account(QMainWindow):
                                       int(self.l_timer_white.text().split(":")[1])
                     self.count_move_black += 1
                 flag_make_move = False
-
+                if not STATUS_game:
+                    if len(self.game.end_game) != 0:
+                        self.game_result.setText(self.game.end_game)
+                        self.stop_timers_and_game()
         except Exception as e:
             print(e)
 
