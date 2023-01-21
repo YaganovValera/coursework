@@ -119,7 +119,7 @@ class Chess_Board(QThread):
         global STATUS_game, USER_board, flag_move_player, Players, flag_draw_board, USER_move, flag_make_move, flag_pawn_replacement
         try:
             while STATUS_game:
-                time.sleep(0.4)
+                time.sleep(0.47)
                 if flag_draw_board:
                     if not flag_make_move:
                         if "Человек" in Players:
@@ -165,13 +165,6 @@ class Chess_Board(QThread):
                             if not self.check_student_move(student_move):
                                 self.correct_student_move = False
                                 break
-                            else:
-                                broadcast_move(flag_move_player)
-
-                        STATUS_game = checking_cur_board(stockfish.get_fen_position())
-                        board = chess.Board(stockfish.get_fen_position())
-                        if board.is_insufficient_material():
-                            STATUS_game = False
                 else:
                     self.correct_student_move = True
                     self.move_for_info = ''
@@ -188,6 +181,7 @@ class Chess_Board(QThread):
             USER_board = get_cur_position()
             flag_move_player = not flag_move_player
             flag_make_move = True
+            broadcast_move(flag_move_player)
             return True
         else:
             self.move_for_info = student_move
@@ -372,7 +366,7 @@ class Personal_account(QMainWindow):
                         file_student.write("0\n")
 
             self.timer.start(1000)
-            self.timer_draw_move.start(500)
+            self.timer_draw_move.start(1000)
             STATUS_game = True
             flag_draw_board = False
             self.start_time = int(self.label_time.text()) * 60
