@@ -121,56 +121,57 @@ class Chess_Board(QThread):
             while STATUS_game:
                 time.sleep(0.4)
                 if flag_draw_board:
-                    if "Человек" in Players:
-                        if Players[int(flag_move_player)] == "Человек":
-                            if len(USER_move) >= 4 and flag_pawn_replacement:
-                                if check_correct_move(USER_move):
-                                    self.move_for_info = USER_move
-                                    self.digit_move = transition_board(USER_move[0:4])
-                                    USER_board = get_cur_position()
-                                    flag_move_player = not flag_move_player
-                                    flag_make_move = True
-                                    broadcast_move()
-                                USER_move = ''
-                                flag_pawn_replacement = False
+                    if not flag_make_move:
+                        if "Человек" in Players:
+                            if Players[int(flag_move_player)] == "Человек":
+                                if len(USER_move) >= 4 and flag_pawn_replacement:
+                                    if check_correct_move(USER_move):
+                                        self.move_for_info = USER_move
+                                        self.digit_move = transition_board(USER_move[0:4])
+                                        USER_board = get_cur_position()
+                                        flag_move_player = not flag_move_player
+                                        flag_make_move = True
+                                        broadcast_move()
+                                    USER_move = ''
+                                    flag_pawn_replacement = False
+                                else:
+                                    continue
                             else:
-                                continue
+                                student_move = get_student_move()
+                                if student_move == -1:
+                                    continue
+                                if not self.check_student_move(student_move):
+                                    self.correct_student_move = False
+                                    break
+
+                        elif "Компьютер" in Players:
+                            if Players[int(flag_move_player)] == "Компьютер":
+                                self.move_for_info, self.digit_move = get_computer_move()
+                                USER_board = get_cur_position()
+                                flag_move_player = not flag_move_player
+                                flag_make_move = True
+                                broadcast_move()
+                            else:
+                                student_move = get_student_move()
+                                if student_move == -1:
+                                    continue
+                                if not self.check_student_move(student_move):
+                                    self.correct_student_move = False
+                                    break
                         else:
-                            student_move = get_student_move()
+                            student_move = get_student_move(flag_move_player)
                             if student_move == -1:
                                 continue
                             if not self.check_student_move(student_move):
                                 self.correct_student_move = False
                                 break
+                            else:
+                                broadcast_move(flag_move_player)
 
-                    elif "Компьютер" in Players:
-                        if Players[int(flag_move_player)] == "Компьютер":
-                            self.move_for_info, self.digit_move = get_computer_move()
-                            USER_board = get_cur_position()
-                            flag_move_player = not flag_move_player
-                            flag_make_move = True
-                            broadcast_move()
-                        else:
-                            student_move = get_student_move()
-                            if student_move == -1:
-                                continue
-                            if not self.check_student_move(student_move):
-                                self.correct_student_move = False
-                                break
-                    else:
-                        student_move = get_student_move(flag_move_player)
-                        if student_move == -1:
-                            continue
-                        if not self.check_student_move(student_move):
-                            self.correct_student_move = False
-                            break
-                        else:
-                            broadcast_move(flag_move_player)
-
-                    STATUS_game = checking_cur_board(stockfish.get_fen_position())
-                    board = chess.Board(stockfish.get_fen_position())
-                    if board.is_insufficient_material():
-                        STATUS_game = False
+                        STATUS_game = checking_cur_board(stockfish.get_fen_position())
+                        board = chess.Board(stockfish.get_fen_position())
+                        if board.is_insufficient_material():
+                            STATUS_game = False
                 else:
                     self.correct_student_move = True
                     self.move_for_info = ''
@@ -390,6 +391,7 @@ class Personal_account(QMainWindow):
                 self.game.correct_student_move = True
 
             elif flag_make_move:
+                # Отрисовка хода
                 for cell in range(0, len(self.game.digit_move), 2):
                     item = QtWidgets.QTableWidgetItem()
                     x = int(self.game.digit_move[cell])
@@ -430,6 +432,7 @@ class Personal_account(QMainWindow):
                     item.setFlags(QtCore.Qt.ItemIsEnabled)
                     self.table_chess_board.setItem(x, y, item)
 
+                # Информация о ходе
                 if not flag_move_player:
                     self.cur_time = int(self.l_timer_white.text().split(":")[0])*60 + \
                                     int(self.l_timer_white.text().split(":")[1])
@@ -457,7 +460,7 @@ class Personal_account(QMainWindow):
                     board = chess.Board(stockfish.get_fen_position())
                     if board.is_insufficient_material():
                         self.game.end_game = 'Ничья из-за недостаточного материала.'
-                        STATUS_game = False7
+                        STATUS_game = False
 
                 if len(self.game.end_game) != 0:
                     self.game_result.setText(self.game.end_game)
