@@ -122,6 +122,7 @@ class Chess_Board(QThread):
                 time.sleep(0.47)
                 if flag_draw_board:
                     if not flag_make_move:
+                        # Совершение ходов в режиме "Человек/ Программа студента"
                         if "Человек" in Players:
                             if Players[int(flag_move_player)] == "Человек":
                                 if len(USER_move) >= 4 and flag_pawn_replacement:
@@ -143,7 +144,7 @@ class Chess_Board(QThread):
                                 if not self.check_student_move(student_move):
                                     self.correct_student_move = False
                                     break
-
+                        # Совершение ходов в режиме "Компьютер/ Программа студента"
                         elif "Компьютер" in Players:
                             if Players[int(flag_move_player)] == "Компьютер":
                                 self.move_for_info, self.digit_move = get_computer_move()
@@ -158,6 +159,7 @@ class Chess_Board(QThread):
                                 if not self.check_student_move(student_move):
                                     self.correct_student_move = False
                                     break
+                        # Совершение ходов в режиме "Прграмма студента/ Программа студента"
                         else:
                             student_move = get_student_move(flag_move_player)
                             if student_move == -1:
@@ -173,6 +175,7 @@ class Chess_Board(QThread):
         except Exception as e:
             print(e)
 
+    # Получение и проверка хода со стороны программы студента
     def check_student_move(self, student_move):
         global flag_move_player, USER_board, STATUS_game, flag_make_move
         if check_correct_move(student_move):
@@ -225,6 +228,7 @@ class Personal_account(QMainWindow):
     def set_time(self, value):
         self.label_time.setText(str(value))
 
+    # Отрисовка таймеров
     def draw_player_timer(self, timer_color):
         global STATUS_game, flag_make_move
         if timer_color and not flag_make_move:
@@ -255,6 +259,7 @@ class Personal_account(QMainWindow):
             else:
                 self.l_timer_black.setText(str(cur_timer[0]) + ":" + str(cur_timer[1]))
 
+    # Завершение игры
     def stop_timers_and_game(self):
         global STATUS_game, flag_make_move
         STATUS_game = False
@@ -265,6 +270,7 @@ class Personal_account(QMainWindow):
         self.game.exit()
         self.clear_file()
 
+    # обновление доски
     def restart_board(self):
         global STATUS_game, USER_board, Players, flag_move_player, flag_draw_board, USER_move, flag_make_move
         if self.timer.isActive():
@@ -291,6 +297,7 @@ class Personal_account(QMainWindow):
         self.game_result.setText('')
         self.clear_file()
 
+    # Отрисовка текущей доски
     def draw_cur_board(self):
         for i in range(self.table_chess_board.rowCount()):
             for j in range(self.table_chess_board.columnCount()):
@@ -308,6 +315,7 @@ class Personal_account(QMainWindow):
                 item.setFlags(QtCore.Qt.ItemIsEnabled)
                 self.table_chess_board.setItem(i, j, item)
 
+    # Проверка на правильность стартовой позиции
     def check_board(self, board):
         if checking_cur_board(board):
             self.start_board = make_matrix_board(board)
@@ -316,6 +324,7 @@ class Personal_account(QMainWindow):
         else:
             return False
 
+    # Проверка на правильность выбранного режима
     def check_comboBox(self):
         global Players
         white = self.player_white_comboBox.currentText()
@@ -326,6 +335,7 @@ class Personal_account(QMainWindow):
         Players = [black, white]
         return True
 
+    # Проверка и настрока игры
     def settings_Game(self):
         global STATUS_game, USER_board, Players, flag_move_player, flag_draw_board
         self.restart_board()
@@ -376,6 +386,7 @@ class Personal_account(QMainWindow):
             self.draw_cur_board()
             self.error_user_board()
 
+    # Отрисовка хода
     def draw_move(self):
         global STATUS_game, USER_board, Players, flag_move_player, flag_draw_board, flag_make_move
         try:
@@ -447,6 +458,7 @@ class Personal_account(QMainWindow):
                                       int(self.l_timer_white.text().split(":")[1])
                     self.count_move_black += 1
 
+                # Проверка на конец игры
                 STATUS_game = checking_cur_board(stockfish.get_fen_position())
                 if not STATUS_game:
                     self.game.end_game = get_end_game(flag_move_player)
